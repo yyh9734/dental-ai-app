@@ -1,4 +1,4 @@
-# === main.py (프록시 업로드 버전) ===
+# === main.py (Render 배포용 - 전체 텍스트) ===
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request, File, UploadFile
@@ -10,15 +10,15 @@ import uuid
 from celery import Celery
 from dotenv import load_dotenv
 
-# .env 파일 로드
+# .env 파일 로드 (Render 환경 변수가 우선함)
 load_dotenv()
 
-# --- 환경 변수 로드 ---
+# --- 환경 변수 로드 (Render 대시보드에서 설정) ---
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 AWS_REGION = "ap-northeast-2"
-S3_BUCKET_NAME = "dental-ai-recordings" # OOO님의 버킷 이름
+S3_BUCKET_NAME = "dental-ai-recordings" 
 
 # --- Boto3 클라이언트 초기화 ---
 try:
@@ -36,8 +36,10 @@ except Exception as e:
 # --- FastAPI 앱 초기화 및 CORS 설정 ---
 app = FastAPI()
 
+# (★수정됨) Render 프론트엔드 URL을 허용
 origins = [
-    "http://localhost:8080", # 프론트엔드
+    "https://dental-ai-app-xyj4.onrender.com/"  # [TODO] OOO님의 'Static Site' URL로 교체
+    # "http://localhost:8080" # (선택) 로컬 테스트용으로 남겨둘 수 있음
 ]
 
 app.add_middleware(
@@ -47,7 +49,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-print("API-SERVER: CORS 설정 완료. http://localhost:8080 허용.")
+print(f"API-SERVER: CORS 설정 완료. {origins} 허용.")
 
 # --- Celery 연결 ---
 try:
@@ -69,22 +71,19 @@ print("API-SERVER: (가상) jobs_db 초기화 완료.")
 def read_root():
     return {"message": "AI Dental Assistant API"}
 
-# (신규) /api/upload-audio 엔드포인트
 @app.post("/api/upload-audio")
 async def upload_audio(audio_file: UploadFile = File(...)):
     if not s3_client:
         raise HTTPException(status_code=503, detail="S3 서비스에 연결할 수 없습니다.")
 
-    # 1. 파일 키 생성 (S3에 저장될 이름)
-    file_extension = "webm" # 오디오 타입 고정 (필요시 수정)
+    file_extension = "webm" 
     file_key = f"uploads/{uuid.uuid4()}.{file_extension}"
     
     print(f"API-SERVER: 파일 수신 시작: {audio_file.filename} -> S3 ({file_key})")
     
     try:
-        # 2. (서버가 직접) S3로 파일 업로드
         s3_client.upload_fileobj(
-            audio_file.file,  # FastAPI의 UploadFile 객체
+            audio_file.file,
             S3_BUCKET_NAME,
             file_key,
             ExtraArgs={'ContentType': audio_file.content_type}
@@ -94,16 +93,14 @@ async def upload_audio(audio_file: UploadFile = File(...)):
         print(f"API-SERVER: S3 업로드 실패: {e}")
         raise HTTPException(status_code=500, detail=f"S3 업로드 실패: {e}")
     finally:
-        await audio_file.close() # 파일 핸들러 닫기
+        await audio_file.close() 
         
-    # 3. S3 업로드 성공 후, Celery 작업 지시
     job_id = str(uuid.uuid4())
     jobs_db[job_id] = {"status": "pending", "file_key": file_key, "result": None}
 
     try:
         process_audio_task.delay(job_id, file_key)
         print(f"API-SERVER: Job {job_id}를 Celery 큐에 추가했습니다.")
-        # 4. 프론트엔드에 job_id 반환
         return {"job_id": job_id, "status": "pending"}
     except Exception as e:
         print(f"API-SERVER: Celery 작업 지시 실패: {e}")
@@ -117,7 +114,6 @@ async def get_status(job_id: str):
         raise HTTPException(status_code=404, detail="Job을 찾을 수 없습니다.")
     return job
 
-# (신규) 워커가 상태를 업데이트할 내부 API
 class JobUpdate(BaseModel):
     job_id: str
     status: str
@@ -137,7 +133,7 @@ async def update_job_status(update: JobUpdate):
     return {"message": "상태 업데이트 성공"}
 
 
-# --- 서버 시작 로직 ---
+# --- 서버 시작 로직 (Render는 이 부분을 사용하지 않고 'Start Command'를 사용함) ---
 if __name__ == "__main__":
-    print("API-SERVER: FastAPI 서버를 uvicorn으로 시작합니다 (http://localhost:8000)")
+    print("API-SERVER: (로컬 실행) FastAPI 서버를 uvicorn으로 시작합니다 (http://localhost:8000)")
     uvicorn.run(app, host="0.0.0.0", port=8000)

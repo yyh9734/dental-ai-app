@@ -1,11 +1,10 @@
-<!-- === index.html (프록시 업로드 / recordSocket 오류 수정) === -->
+<!-- === index.html (Render 배포용 - 전체 텍스트) === -->
 <!DOCTYPE html>
 <html lang="ko" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Dental Assistant</title>
-    <!-- [중요] Tailwind CSS 로드 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -141,7 +140,7 @@
         const recordIcon = document.getElementById('recordIcon');
         const stopIcon = document.getElementById('stopIcon');
         const timerEl = document.getElementById('timer');
-        const recordStatus = document.getElementById('recordStatus'); // (★) 이것이 올바른 변수 이름입니다.
+        const recordStatus = document.getElementById('recordStatus'); 
         const audioPlaybackContainer = document.getElementById('audioPlaybackContainer');
         const transcriptContainer = document.getElementById('transcriptContainer');
         const copyButtons = document.querySelectorAll('.btn-copy');
@@ -165,8 +164,9 @@
         let isProcessing = false;
         let pollingInterval = null; 
         
-        // --- 상수 ---
-        const API_BASE_URL = "http://localhost:8000"; 
+        // --- (★수정됨) 상수 ---
+        // [TODO] OOO님의 'Web Service (API 서버)' URL로 교체
+        const API_BASE_URL = "https://dental-ai-app-xyj4.onrender.com/"; 
 
         // --- 페이지 전환 함수 ---
         const showFeaturePage = () => {
@@ -236,17 +236,14 @@
                         recordButton.disabled = true;
                         recordButton.classList.add('btn-disabled');
                         
-                        // 1. FormData에 Blob 담기
                         recordStatus.textContent = "파일 업로드 중 (서버 경유)...";
                         const formData = new FormData();
-                        // (중요) `main.py`의 `audio_file: UploadFile = File(...)`와 이름 일치
                         formData.append("audio_file", audioBlob, `recording.webm`); 
 
-                        // 2. (신규) /api/upload-audio로 파일 직접 전송
+                        // (★수정됨) API_BASE_URL 사용
                         const response = await fetch(`${API_BASE_URL}/api/upload-audio`, {
                             method: 'POST',
                             body: formData
-                            // (중요) FormData 사용 시 Content-Type 헤더는 브라우저가 자동으로 설정함 (boundary 포함)
                         });
 
                         if (!response.ok) {
@@ -259,7 +256,6 @@
                         jobId = jobData.job_id;
                         recordStatus.textContent = "업로드 완료. AI 작업 시작...";
 
-                        // 3. 폴링 시작
                         startPolling(jobId);
 
                     } catch (err) {
@@ -271,7 +267,6 @@
                     }
                 };
                 
-                // 3. 페이지 전환
                 showFeaturePage();
 
             } catch (err) {
@@ -288,6 +283,7 @@
 
             pollingInterval = setInterval(async () => {
                 try {
+                    // (★수정됨) API_BASE_URL 사용
                     const response = await fetch(`${API_BASE_URL}/api/get-status/${jobId}`);
                     if (!response.ok) {
                         throw new Error("작업 상태 조회 실패");
@@ -304,8 +300,13 @@
                             recordStatus.textContent = "음성 분석 중 (STT)...";
                             break;
                         case 'processing_soap':
-                            // (★수정됨) recordSocket -> recordStatus (혹시 모를 오류 방지)
                             recordStatus.textContent = "SOAP 요약 생성 중...";
+                            break;
+                        case 'processing_stt (IN_PROGRESS)': 
+                            recordStatus.textContent = "음성 분석 중 (STT)...";
+                            break;
+                        case 'processing_stt (COMPLETED)': 
+                            recordStatus.textContent = "음성 분석 완료. 요약 시작...";
                             break;
                         case 'completed':
                             clearInterval(pollingInterval);
@@ -337,29 +338,30 @@
                             recordButton.disabled = false;
                             recordButton.classList.remove('btn-disabled');
                             break;
+                        default:
+                            recordStatus.textContent = `처리 중... (상태: ${data.status})`;
                     }
 
                 } catch (err) {
                     console.error("폴링 오류:", err);
                     recordStatus.textContent = "상태 확인 중 오류 발생...";
-                    // (중요) 폴링 자체의 오류이므로, 여기서 폴링을 멈추면 안 됨.
                 }
             }, 3000); // 3초마다
         }
 
         // 대본 포맷팅 함수
         function formatTranscript(transcriptText) {
+            transcriptContainer.innerHTML = ''; 
             return transcriptText.split('\n').map(line => {
                 line = line.trim();
                 if (line.startsWith('[술자]')) {
-                    // ': '가 포함된 경우와 아닌 경우 모두 처리
                     let content = line.replace('[술자]', '').replace(':', '').trim();
-                    return `<div class="transcript-bubble transcript-doctor">${content}</div>`;
+                    return `<div class="w-full flex justify-end"><div class="transcript-bubble transcript-doctor">${content}</div></div>`;
                 } else if (line.startsWith('[환자]')) {
                     let content = line.replace('[환자]', '').replace(':', '').trim();
-                    return `<div class="transcript-bubble transcript-patient">${content}</div>`;
+                    return `<div class="w-full flex justify-start"><div class="transcript-bubble transcript-patient">${content}</div></div>`;
                 } else if (line) {
-                    return `<p class="text-sm text-gray-500">${line}</p>`; // 화자 불명
+                    return `<p class="text-sm text-gray-500 text-center">${line}</p>`; 
                 }
                 return '';
             }).join('');

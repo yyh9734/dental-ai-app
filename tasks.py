@@ -1,27 +1,30 @@
+# === tasks.py (Render 배포용 - 전체 텍스트) ===
 import os
 import time
 import boto3
 import openai
 from celery import Celery
-import requests # API 서버와 통신하기 위해
+import requests 
 from dotenv import load_dotenv
-import json # Transcribe 결과(JSON) 파싱을 위해
-import uuid # Transcribe 작업 이름 생성을 위해
+import json 
+import uuid 
 
-# .env 파일 로드
+# .env 파일 로드 (Render 환경 변수가 우선함)
 load_dotenv()
 
-# --- 환경 변수 로드 ---
+# --- 환경 변수 로드 (Render 대시보드에서 설정) ---
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 AWS_REGION = "ap-northeast-2"
 S3_BUCKET_NAME = "dental-ai-recordings"
 
-# --- API 서버 주소 ---
-API_SERVER_URL = "http://localhost:8000"
+# (★수정됨) API 서버 주소 (Render의 'Web Service' URL)
+# [TODO] OOO님의 'Web Service (API 서버)' URL로 교체
+API_SERVER_URL = "https://dental-ai-app-xyj4.onrender.com/"
 
-# --- Celery 설정 ---
+# (★수정됨) Celery 설정 (Render의 'Key Value' URL)
+# (Render 환경 변수에서 CELERY_BROKER_URL, CELERY_RESULT_BACKEND를 읽어옴)
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
 
@@ -63,25 +66,19 @@ else:
 
 # --- 상태 업데이트 헬퍼 함수 ---
 def update_job_status(job_id, status, result=None):
-    """
-    API 서버(main.py)의 jobs_db에 상태를 업데이트합니다.
-    """
     try:
         payload = {"job_id": job_id, "status": status, "result": result}
+        # (★수정됨) API_SERVER_URL 사용
         requests.post(f"{API_SERVER_URL}/api/update-job-status", json=payload)
         print(f"CELERY-WORKER: Job {job_id} 상태 -> {status} (API 서버로 전송)")
     except Exception as e:
         print(f"CELERY-WORKER: (치명적) API 서버로 상태 업데이트 실패: {e}")
 
 # =================================================================
-# (신규) 실제 AWS Transcribe 호출 및 파싱 함수
+# 실제 AWS Transcribe 호출 및 파싱 함수
 # =================================================================
 
 def parse_transcribe_json(result_json):
-    """
-    AWS Transcribe의 복잡한 JSON 결과를 [spk_0]: ... [spk_1]: ... 형태의
-    간단한 텍스트 대본으로 변환합니다.
-    """
     try:
         items = result_json['results']['items']
     except KeyError:
@@ -95,7 +92,7 @@ def parse_transcribe_json(result_json):
     for item in items:
         speaker = item.get('speaker_label', None)
         content = item['alternatives'][0]['content']
-        item_type = item.get('type', 'pronunciation') # Default to pronunciation
+        item_type = item.get('type', 'pronunciation') 
         
         if speaker is None and item_type != 'punctuation':
             speaker = current_speaker
@@ -121,17 +118,11 @@ def parse_transcribe_json(result_json):
     return final_transcript
 
 def call_aws_transcribe_real(job_id, s3_file_key):
-    """
-    (실제) AWS Transcribe Medical을 비동기식으로 호출하고,
-    완료될 때까지 폴링(polling)한 뒤, 결과를 파싱하여 반환합니다.
-    """
     if not transcribe_client or not s3_client:
         raise Exception("AWS 클라이언트가 초기화되지 않았습니다.")
     
     transcription_job_name = f"dental-ai-job-{uuid.uuid4().hex[:8]}-{job_id}"
     s3_media_uri = f"s3://{S3_BUCKET_NAME}/{s3_file_key}"
-    
-    # (★수정됨) Transcribe가 결과 JSON을 저장할 S3 경로
     output_key = f"results/{transcription_job_name}.json"
     
     print(f"CELERY-WORKER: Job {job_id} | 1. (REAL) AWS Transcribe Medical 작업 시작...")
@@ -142,11 +133,8 @@ def call_aws_transcribe_real(job_id, s3_file_key):
             MedicalTranscriptionJobName=transcription_job_name,
             LanguageCode='ko-KR',
             Media={'MediaFileUri': s3_media_uri},
-            
-            # (★수정됨) Transcribe가 결과 JSON을 저장할 S3 버킷 지정
             OutputBucketName=S3_BUCKET_NAME,
-            OutputKey=output_key, # S3 버킷 내의 파일 경로
-            
+            OutputKey=output_key, 
             Specialty='PRIMARYCARE',
             Type='CONVERSATION',
             Settings={
@@ -184,10 +172,8 @@ def call_aws_transcribe_real(job_id, s3_file_key):
         print(f"CELERY-WORKER: Job {job_id} | 1. STT 실패: {failure_reason}")
         raise Exception(f"AWS Transcribe 실패: {failure_reason}")
 
-    # 작업 완료 (COMPLETED)
     print(f"CELERY-WORKER: Job {job_id} | 1. STT 완료. S3에서 결과 다운로드 중...")
     
-    # (★수정됨) S3에서 직접 결과 파일(JSON)을 다운로드
     try:
         result_object = s3_client.get_object(
             Bucket=S3_BUCKET_NAME, 
@@ -211,10 +197,6 @@ def call_aws_transcribe_real(job_id, s3_file_key):
 # =================================================================
 
 def summarize_soap_real(job_id, full_transcript):
-    """
-    (실제) OpenAI (GPT)를 호출하여 대본을 SOAP 요약으로 변환합니다.
-    이 함수는 화자 식별(spk_0, spk_1)과 SOAP 요약을 동시에 수행합니다.
-    """
     print(f"CELERY-WORKER: Job {job_id} | 2. (REAL) OpenAI SOAP 요약 시작...")
     
     if not openai_client:
@@ -223,7 +205,6 @@ def summarize_soap_real(job_id, full_transcript):
     if not full_transcript or full_transcript == "Transcribe JSON 파싱 오류":
         raise Exception("SOAP 요약을 위한 대본이 유효하지 않습니다.")
 
-    # (★핵심★) AI에게 지시할 시스템 프롬프트
     system_prompt = """
     당신은 치과 EMR 차트 작성을 돕는 전문 AI 어시스턴트입니다.
     
@@ -253,31 +234,26 @@ def summarize_soap_real(job_id, full_transcript):
     """
     
     try:
-        # OpenAI API 호출
         completion = openai_client.chat.completions.create(
-            model="gpt-4o", # 또는 gpt-3.5-turbo
+            model="gpt-4o", 
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": full_transcript}
             ],
-            temperature=0.3, # 일관된 요약을 위해
-            response_format={"type": "json_object"} # (중요) JSON 출력 강제
+            temperature=0.3,
+            response_format={"type": "json_object"} 
         )
         
         response_content = completion.choices[0].message.content
-        
         print(f"CELERY-WORKER: Job {job_id} | 2. OpenAI 응답 수신. 파싱 중...")
-        
-        # OpenAI가 반환한 JSON 문자열을 파싱
         soap_json = json.loads(response_content)
         
-        # (중요) 프론트엔드가 대본도 함께 받을 수 있도록 원본 대본을 payload에 추가
         final_payload = {
             "s": soap_json.get("s", "AI 요약 실패"),
             "o": soap_json.get("o", "AI 요약 실패"),
             "a": soap_json.get("a", "AI 요약 실패"),
             "p": soap_json.get("p", "AI 요약 실패"),
-            "transcript": full_transcript # 프론트엔드 대본 표시용
+            "transcript": full_transcript 
         }
         
         print(f"CELERY-WORKER: Job {job_id} | 2. SOAP 요약 완료 (REAL)")
@@ -285,18 +261,12 @@ def summarize_soap_real(job_id, full_transcript):
         
     except Exception as e:
         print(f"CELERY-WORKER: (치명적) OpenAI API 호출 또는 JSON 파싱 실패: {e}")
-        # 실패 시, 프론트엔드에 대본이라도 전송
         failed_payload = {
             "s": "AI 요약 실패", "o": "AI 요약 실패", "a": "AI 요약 실패", "p": "AI 요약 실패",
             "transcript": f"대본:\n{full_transcript}\n\n[오류: OpenAI 요약에 실패했습니다: {e}]"
         }
         return failed_payload
 
-
-# --- (기존) 시뮬레이션 함수 (비교를 위해 남겨둠) ---
-def summarize_soap_simulation(job_id, full_transcript):
-# ... (기존 시뮬레이션 코드, 생략) ...
-    pass
 
 # --- (★수정됨) Celery 메인 작업 함수 ---
 @celery_app.task(name='process_audio_task')
@@ -307,19 +277,12 @@ def process_audio_task(job_id, file_key):
     print(f"CELERY-WORKER: Job {job_id} 작업 시작! (파일 키: {file_key})")
     
     try:
-        # 1. (상태 업데이트) STT 시작
         update_job_status(job_id, "processing_stt")
-        
-        # 2. (실제) AWS Transcribe 함수 호출
         transcript_text = call_aws_transcribe_real(job_id, file_key)
 
-        # 3. (상태 업데이트) SOAP 요약 시작
         update_job_status(job_id, "processing_soap")
-
-        # 4. (실제) OpenAI SOAP 요약 호출
         final_result = summarize_soap_real(job_id, transcript_text)
 
-        # 5. (상태 업데이트) 최종 완료
         update_job_status(job_id, "completed", result=final_result)
         
         return f"Job {job_id} 완료"
@@ -332,7 +295,6 @@ def process_audio_task(job_id, file_key):
         elif "OpenAI" in error_message:
             error_message = f"AI 요약(OpenAI) 실패: {error_message}"
         
-        # (상태 업데이트) 실패
         update_job_status(job_id, "failed", result={"error_message": error_message})
         return f"Job {job_id} 실패: {e}"
 
