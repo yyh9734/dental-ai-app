@@ -38,7 +38,7 @@ app = FastAPI()
 
 # (★수정됨) OOO님의 Render 프론트엔드 URL을 허용
 origins = [
-    "https://dental-ai-app-xyj4.onrender.com" # OOO님의 실제 프론트엔드 URL
+    "https://dental-ui-frontend.onrender.com" # OOO님의 실제 프론트엔드 URL
     # "http://localhost:8080" # (선택) 로컬 테스트용
 ]
 
