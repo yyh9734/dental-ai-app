@@ -1,10 +1,11 @@
-<!-- === index.html (녹음 버튼 버그 수정) === -->
+<!-- === index.html (InternSam 브랜딩 적용) === -->
 <!DOCTYPE html>
 <html lang="ko" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Dental Assistant</title>
+    <!-- (★수정됨) 브라우저 탭 제목 -->
+    <title>InternSam</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,11 +30,12 @@
         <!-- ===== 메인 페이지 ===== -->
         <section id="mainPage" class="flex flex-col items-center justify-center h-full p-6 text-center bg-gradient-to-br from-blue-50 to-white">
             <div class="mb-8">
-                <svg class="w-16 h-16 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a.75.75 0 00.75-.75V6.306A4.5 4.5 0 0118 10.5a4.5 4.5 0 010 9A4.5 4.5 0 0112.75 15v3" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a.75.75 0 01-.75-.75V6.306A4.5 4.5 0 006 10.5a4.5 4.5 0 000 9A4.5 4.5 0 0011.25 15v3" />
-                </svg>
-                <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mt-4">AI Dental Assistant</h1>
+                <!-- (★수정됨) SVG 아이콘 -> logo.png 이미지 -->
+                <!-- 이 이미지가 작동하려면 logo.png 파일이 index.html과 같은 폴더에 있어야 합니다. -->
+                <img src="logo.png" alt="InternSam Logo" class="w-16 h-16 mx-auto">
+                
+                <!-- (★수정됨) <h1> 제목 -->
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mt-4">InternSam</h1>
                 <p id="mainSubCopy" class="text-lg md:text-xl text-gray-600 mt-3 max-w-2xl">
                     진료 대화 녹음 버튼 하나로 SOAP 차트가 완성됩니다.
                 </p>
@@ -164,9 +166,9 @@
         let isProcessing = false;
         let pollingInterval = null; 
         
-        // --- (★수정됨) 상수 ---
-        // [TODO] OOO님의 'Web Service (API 서버)' URL로 교체
-        const API_BASE_URL = "https://dental-ai-app-xyj4.onrender.com"; // [TODO] OOO님의 API 서버 URL
+        // --- 상수 ---
+        // (Render 배포용 URL - OOO님의 API 서버 URL로 교체됨)
+        const API_BASE_URL = "https://dental-ai-app-xyj4.onrender.com"; 
 
         // --- 페이지 전환 함수 ---
         const showFeaturePage = () => {
@@ -223,7 +225,7 @@
                     audioChunks.push(event.data);
                 };
 
-                // (★수정됨) mediaRecorder.onstop (프록시 업로드)
+                // (프록시 업로드)
                 mediaRecorder.onstop = async () => {
                     const mimeType = mediaRecorder.mimeType || 'audio/webm';
                     const audioBlob = new Blob(audioChunks, { type: mimeType });
@@ -240,7 +242,6 @@
                         const formData = new FormData();
                         formData.append("audio_file", audioBlob, `recording.webm`); 
 
-                        // (★수정됨) API_BASE_URL 사용
                         const response = await fetch(`${API_BASE_URL}/api/upload-audio`, {
                             method: 'POST',
                             body: formData
@@ -283,7 +284,6 @@
 
             pollingInterval = setInterval(async () => {
                 try {
-                    // (★수정됨) API_BASE_URL 사용
                     const response = await fetch(`${API_BASE_URL}/api/get-status/${jobId}`);
                     if (!response.ok) {
                         throw new Error("작업 상태 조회 실패");
