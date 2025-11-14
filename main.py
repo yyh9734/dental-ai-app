@@ -36,9 +36,9 @@ except Exception as e:
 # --- FastAPI 앱 초기화 및 CORS 설정 ---
 app = FastAPI()
 
-# (★수정됨) OOO님의 Render 프론트엔드 URL을 허용
+# (★수정됨) OOO님의 'Static Site' (프론트엔드) URL을 허용
 origins = [
-    "https://dental-ui-frontend.onrender.com" # OOO님의 실제 프론트엔드 URL
+    "https://[OOO님의-프론트엔드-URL].onrender.com"  # [TODO] 1단계에서 찾은 'Static Site' URL로 교체
     # "http://localhost:8080" # (선택) 로컬 테스트용
 ]
 
