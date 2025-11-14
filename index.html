@@ -1,4 +1,4 @@
-<!-- === index.html (Render 배포용 - 전체 텍스트) === -->
+<!-- === index.html (녹음 버튼 버그 수정) === -->
 <!DOCTYPE html>
 <html lang="ko" class="h-full">
 <head>
@@ -22,8 +22,6 @@
         .modal-overlay { @apply fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300; }
         .modal-content { @apply bg-white p-6 rounded-lg shadow-xl w-full max-w-md mx-4 transition-transform transform duration-300; }
     </style>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7443608484367770"
-    crossorigin="anonymous"></script>
 </head>
 <body class="h-full bg-gray-50 text-gray-900 antialiased">
 
@@ -168,7 +166,7 @@
         
         // --- (★수정됨) 상수 ---
         // [TODO] OOO님의 'Web Service (API 서버)' URL로 교체
-        const API_BASE_URL = "https://[OOO님의-API서버-URL].onrender.com"; 
+        const API_BASE_URL = "https://dental-ai-app-xyj4.onrender.com"; // [TODO] OOO님의 API 서버 URL
 
         // --- 페이지 전환 함수 ---
         const showFeaturePage = () => {
@@ -298,7 +296,6 @@
                             recordStatus.textContent = "AI 처리 대기 중...";
                             break;
                         case 'processing_stt':
-                            // (★수정됨) recordSocket -> recordStatus
                             recordStatus.textContent = "음성 분석 중 (STT)...";
                             break;
                         case 'processing_soap':
@@ -472,13 +469,16 @@
         // --- 이벤트 리스너 연결 ---
         startButton.addEventListener('click', initiateRecordingSession);
         backButton.addEventListener('click', showMainPage);
+        
+        // (★수정됨) 버그 수정
         recordButton.addEventListener('click', () => {
             if (isRecording) {
                 stopRecording();
             } else {
-                stopRecording();
+                startRecording(); // <--- 'stopRecording()'에서 'startRecording()'으로 수정됨
             }
         });
+
         copyButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const targetId = button.dataset.target;
