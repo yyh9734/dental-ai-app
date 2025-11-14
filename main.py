@@ -36,10 +36,10 @@ except Exception as e:
 # --- FastAPI 앱 초기화 및 CORS 설정 ---
 app = FastAPI()
 
-# (★수정됨) Render 프론트엔드 URL을 허용
+# (★수정됨) OOO님의 Render 프론트엔드 URL을 허용
 origins = [
-    "https://dental-ai-app-xyj4.onrender.com/"  # [TODO] OOO님의 'Static Site' URL로 교체
-    # "http://localhost:8080" # (선택) 로컬 테스트용으로 남겨둘 수 있음
+    "https://dental-ai-app-xyj4.onrender.com" # OOO님의 실제 프론트엔드 URL
+    # "http://localhost:8080" # (선택) 로컬 테스트용
 ]
 
 app.add_middleware(

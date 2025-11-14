@@ -166,7 +166,7 @@
         
         // --- (★수정됨) 상수 ---
         // [TODO] OOO님의 'Web Service (API 서버)' URL로 교체
-        const API_BASE_URL = "https://dental-ai-app-xyj4.onrender.com/"; 
+        const API_BASE_URL = "https://[OOO님의-API서버-URL].onrender.com"; 
 
         // --- 페이지 전환 함수 ---
         const showFeaturePage = () => {
@@ -474,7 +474,7 @@
             if (isRecording) {
                 stopRecording();
             } else {
-                startRecording();
+                stopRecording();
             }
         });
         copyButtons.forEach(button => {

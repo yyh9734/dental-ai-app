@@ -21,7 +21,7 @@ S3_BUCKET_NAME = "dental-ai-recordings"
 
 # (★수정됨) API 서버 주소 (Render의 'Web Service' URL)
 # [TODO] OOO님의 'Web Service (API 서버)' URL로 교체
-API_SERVER_URL = "https://dental-ai-app-xyj4.onrender.com/"
+API_SERVER_URL = "https://[OOO님의-API서버-URL].onrender.com"
 
 # (★수정됨) Celery 설정 (Render의 'Key Value' URL)
 # (Render 환경 변수에서 CELERY_BROKER_URL, CELERY_RESULT_BACKEND를 읽어옴)
