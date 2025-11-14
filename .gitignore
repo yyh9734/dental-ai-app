@@ -1,0 +1,17 @@
+# === .gitignore (전체 텍스트) ===
+
+# 환경 변수 (비밀 키)
+.env
+
+# 가상 환경
+venv/
+.venv/
+
+# Python 캐시
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# OS 파일
+.DS_Store

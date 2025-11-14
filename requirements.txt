@@ -1,0 +1,19 @@
+# === requirements.txt (전체 텍스트) ===
+
+# API 서버 (FastAPI) 실행
+fastapi
+gunicorn        # (중요) Render의 프로덕션 웹 서버 (uvicorn 대체)
+uvicorn         # gunicorn의 워커로 사용
+python-multipart  # (중요) 파일 업로드(프록시)에 필수
+
+# 백그라운드 워커 (Celery)
+celery
+redis           # Celery와 Redis를 연결하는 데 필수
+
+# AWS 및 OpenAI API
+boto3
+openai
+
+# 기타 유틸리티
+requests        # tasks.py가 main.py와 통신할 때 필요
+python-dotenv   # .env 파일을 읽을 때 필요

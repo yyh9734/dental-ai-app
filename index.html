@@ -1,0 +1,489 @@
+<!-- === index.html (프록시 업로드 / recordSocket 오류 수정) === -->
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Dental Assistant</title>
+    <!-- [중요] Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .btn-primary { @apply text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 transition-all duration-300 ease-in-out shadow-md; }
+        .btn-secondary { @apply text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 transition-all duration-300 ease-in-out shadow-sm; }
+        .btn-danger { @apply text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 transition-all duration-300 ease-in-out shadow-md; }
+        .btn-copy { @apply ml-2 text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-1 bg-blue-100 hover:bg-blue-200 rounded-md transition-all; }
+        .btn-disabled { @apply bg-gray-400 text-gray-200 cursor-not-allowed; }
+        .transcript-bubble { @apply p-3 rounded-lg max-w-xs md:max-w-md; }
+        .transcript-patient { @apply bg-gray-100 text-gray-800 self-start; }
+        .transcript-doctor { @apply bg-blue-600 text-white self-end; }
+        .modal-overlay { @apply fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300; }
+        .modal-content { @apply bg-white p-6 rounded-lg shadow-xl w-full max-w-md mx-4 transition-transform transform duration-300; }
+    </style>
+</head>
+<body class="h-full bg-gray-50 text-gray-900 antialiased">
+
+    <div id="app-wrapper" class="h-full">
+        <!-- ===== 메인 페이지 ===== -->
+        <section id="mainPage" class="flex flex-col items-center justify-center h-full p-6 text-center bg-gradient-to-br from-blue-50 to-white">
+            <div class="mb-8">
+                <svg class="w-16 h-16 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a.75.75 0 00.75-.75V6.306A4.5 4.5 0 0118 10.5a4.5 4.5 0 010 9A4.5 4.5 0 0112.75 15v3" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a.75.75 0 01-.75-.75V6.306A4.5 4.5 0 006 10.5a4.5 4.5 0 000 9A4.5 4.5 0 0011.25 15v3" />
+                </svg>
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mt-4">AI Dental Assistant</h1>
+                <p id="mainSubCopy" class="text-lg md:text-xl text-gray-600 mt-3 max-w-2xl">
+                    진료 대화 녹음 버튼 하나로 SOAP 차트가 완성됩니다.
+                </p>
+            </div>
+            <button id="startButton" class="btn-primary !text-lg !px-8 !py-3 !rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                새 진료 녹음 시작하기
+            </button>
+        </section>
+
+        <!-- ===== 기능 페이지 (기본 숨김) ===== -->
+        <section id="featurePage" class="hidden h-full flex flex-col p-4 md:p-8">
+            <!-- 헤더 -->
+            <header class="flex justify-between items-center pb-4 border-b border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-800">새 진료 녹음</h2>
+                <button id="backButton" class="btn-secondary">메인으로</button>
+            </header>
+
+            <!-- 녹음 컨트롤러 -->
+            <div class="flex flex-col items-center justify-center py-6 md:py-10 bg-white rounded-lg shadow-inner my-4 border border-gray-200">
+                <button id="recordButton" class="w-20 h-20 rounded-full bg-red-600 hover:bg-red-700 shadow-lg flex items-center justify-center text-white transition-all duration-300">
+                    <svg id="recordIcon" class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M3 9.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/>
+                    </svg>
+                    <svg id="stopIcon" class="w-6 h-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M5 3.5h6A1.5 1.5 0 0 1 12.5 5v6a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 11V5A1.5 1.5 0 0 1 5 3.5z"/>
+                    </svg>
+                </button>
+                <div id="timer" class="text-2xl font-semibold text-gray-700 mt-4">00:00:00</div>
+                <p id="recordStatus" class="text-lg text-gray-500 mt-2">클릭하여 녹음 시작</p>
+                <div id="audioPlaybackContainer" class="mt-4"></div>
+            </div>
+
+            <!-- 결과 영역 -->
+            <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden">
+                <!-- 왼쪽: 전체 대본 -->
+                <div class="flex flex-col h-full bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+                    <h3 class="text-lg font-semibold p-4 border-b border-gray-200">전체 대본</h3>
+                    <div id="transcriptContainer" class="flex-1 p-4 space-y-3 overflow-y-auto">
+                        <p class="text-gray-400 text-center mt-10">AI 처리 완료 시 이곳에 대본이 표시됩니다.</p>
+                    </div>
+                </div>
+                <!-- 오른쪽: SOAP 요약 -->
+                <div class="flex flex-col h-full bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+                    <h3 class="text-lg font-semibold p-4 border-b border-gray-200">SOAP 요약</h3>
+                    <div class="flex-1 p-4 space-y-4 overflow-y-auto">
+                        <!-- S -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label for="soap-s" class="block text-sm font-bold text-gray-700">S (Subjective)</label>
+                                <button class="btn-copy" data-target="soap-s">복사</button>
+                            </div>
+                            <textarea id="soap-s" rows="4" class="w-full p-2 border border-gray-300 rounded-md shadow-inner bg-gray-50" readonly></textarea>
+                        </div>
+                        <!-- O -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label for="soap-o" class="block text-sm font-bold text-gray-700">O (Objective)</label>
+                                <button class="btn-copy" data-target="soap-o">복사</button>
+                            </div>
+                            <textarea id="soap-o" rows="4" class="w-full p-2 border border-gray-300 rounded-md shadow-inner bg-gray-50" readonly></textarea>
+                        </div>
+                        <!-- A -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label for="soap-a" class="block text-sm font-bold text-gray-700">A (Assessment)</label>
+                                <button class="btn-copy" data-target="soap-a">복사</button>
+                            </div>
+                            <textarea id="soap-a" rows="4" class="w-full p-2 border border-gray-300 rounded-md shadow-inner bg-gray-50" readonly></textarea>
+                        </div>
+                        <!-- P -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label for="soap-p" class="block text-sm font-bold text-gray-700">P (Plan)</label>
+                                <button class="btn-copy" data-target="soap-p">복사</button>
+                            </div>
+                            <textarea id="soap-p" rows="4" class="w-full p-2 border border-gray-300 rounded-md shadow-inner bg-gray-50" readonly></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 경고 모달 (기본 숨김) -->
+    <div id="warningModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 class="text-lg font-bold text-gray-900">경고</h3>
+            <p id="modalMessage" class="mt-2 text-sm text-gray-600">녹음 또는 처리 작업이 진행 중입니다. 정말 중단하고 메인 페이지로 이동하시겠습니까?</p>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="modalCancelButton" class="btn-secondary">취소</button>
+                <button id="modalProceedButton" class="btn-danger">무시하고 이동</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log("AI Dental App 스크립트 로드 시작 (프록시 버전).");
+        // --- DOM 요소 선택 ---
+        const mainPage = document.getElementById('mainPage');
+        const featurePage = document.getElementById('featurePage');
+        const startButton = document.getElementById('startButton');
+        const backButton = document.getElementById('backButton');
+        const recordButton = document.getElementById('recordButton');
+        const recordIcon = document.getElementById('recordIcon');
+        const stopIcon = document.getElementById('stopIcon');
+        const timerEl = document.getElementById('timer');
+        const recordStatus = document.getElementById('recordStatus'); // (★) 이것이 올바른 변수 이름입니다.
+        const audioPlaybackContainer = document.getElementById('audioPlaybackContainer');
+        const transcriptContainer = document.getElementById('transcriptContainer');
+        const copyButtons = document.querySelectorAll('.btn-copy');
+        const mainSubCopy = document.getElementById('mainSubCopy');
+        
+        // --- 모달 요소 ---
+        const warningModal = document.getElementById('warningModal');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalCancelButton = document.getElementById('modalCancelButton');
+        const modalProceedButton = document.getElementById('modalProceedButton');
+
+        // --- 녹음 관련 변수 ---
+        let mediaRecorder;
+        let audioChunks = [];
+        let audioStream; 
+        let timerInterval;
+        let seconds = 0;
+        
+        // --- 상태 변수 ---
+        let isRecording = false;
+        let isProcessing = false;
+        let pollingInterval = null; 
+        
+        // --- 상수 ---
+        const API_BASE_URL = "http://localhost:8000"; 
+
+        // --- 페이지 전환 함수 ---
+        const showFeaturePage = () => {
+            mainPage.classList.add('hidden');
+            featurePage.classList.remove('hidden');
+        };
+
+        const forceShowMainPage = () => {
+            if (isRecording) {
+                mediaRecorder.stop();
+            }
+            if (audioStream) {
+                audioStream.getTracks().forEach(track => track.stop());
+                audioStream = null;
+            }
+            clearInterval(timerInterval);
+            clearInterval(pollingInterval); 
+            isRecording = false;
+            isProcessing = false;
+            
+            resetRecordingUI();
+            resetResultUI();
+
+            featurePage.classList.add('hidden');
+            mainPage.classList.remove('hidden');
+            warningModal.classList.add('hidden');
+        };
+        
+        const showMainPage = () => {
+            if (isRecording || isProcessing) {
+                modalMessage.textContent = isRecording
+                    ? "녹음이 진행 중입니다. 정말 중단하고 메인 페이지로 이동하시겠습니까?"
+                    : "파일 업로드 또는 AI 처리 작업이 진행 중입니다. 정말 중단하시겠습니까?";
+                warningModal.classList.remove('hidden');
+            } else {
+                forceShowMainPage();
+            }
+        };
+        
+        modalCancelButton.addEventListener('click', () => {
+            warningModal.classList.add('hidden');
+        });
+        modalProceedButton.addEventListener('click', forceShowMainPage);
+
+        // --- 녹음 세션 초기화 (메인 -> 기능) ---
+        const initiateRecordingSession = async () => {
+            try {
+                audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mainSubCopy.textContent = "마이크 권한이 확인되었습니다. 잠시 기다려주세요...";
+                
+                mediaRecorder = new MediaRecorder(audioStream);
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+
+                // (★수정됨) mediaRecorder.onstop (프록시 업로드)
+                mediaRecorder.onstop = async () => {
+                    const mimeType = mediaRecorder.mimeType || 'audio/webm';
+                    const audioBlob = new Blob(audioChunks, { type: mimeType });
+                    setupAudioPlayback(audioBlob); 
+
+                    let jobId = "";
+
+                    try {
+                        isProcessing = true;
+                        recordButton.disabled = true;
+                        recordButton.classList.add('btn-disabled');
+                        
+                        // 1. FormData에 Blob 담기
+                        recordStatus.textContent = "파일 업로드 중 (서버 경유)...";
+                        const formData = new FormData();
+                        // (중요) `main.py`의 `audio_file: UploadFile = File(...)`와 이름 일치
+                        formData.append("audio_file", audioBlob, `recording.webm`); 
+
+                        // 2. (신규) /api/upload-audio로 파일 직접 전송
+                        const response = await fetch(`${API_BASE_URL}/api/upload-audio`, {
+                            method: 'POST',
+                            body: formData
+                            // (중요) FormData 사용 시 Content-Type 헤더는 브라우저가 자동으로 설정함 (boundary 포함)
+                        });
+
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            console.error("업로드 실패 상세:", errorText);
+                            throw new Error(`파일 업로드 실패 (${response.status})`);
+                        }
+                        
+                        const jobData = await response.json();
+                        jobId = jobData.job_id;
+                        recordStatus.textContent = "업로드 완료. AI 작업 시작...";
+
+                        // 3. 폴링 시작
+                        startPolling(jobId);
+
+                    } catch (err) {
+                        console.error("처리 실패:", err);
+                        recordStatus.textContent = `오류 발생: ${err.message}`;
+                        isProcessing = false;
+                        recordButton.disabled = false;
+                        recordButton.classList.remove('btn-disabled');
+                    }
+                };
+                
+                // 3. 페이지 전환
+                showFeaturePage();
+
+            } catch (err) {
+                console.error("마이크 권한 오류:", err);
+                mainSubCopy.textContent = "마이크 권한을 허용해야 앱을 사용할 수 있습니다.";
+            }
+        };
+
+        // --- 폴링 함수 ---
+        function startPolling(jobId) {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+            }
+
+            pollingInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/get-status/${jobId}`);
+                    if (!response.ok) {
+                        throw new Error("작업 상태 조회 실패");
+                    }
+                    
+                    const data = await response.json();
+                    
+                    switch(data.status) {
+                        case 'pending':
+                            recordStatus.textContent = "AI 처리 대기 중...";
+                            break;
+                        case 'processing_stt':
+                            // (★수정됨) recordSocket -> recordStatus
+                            recordStatus.textContent = "음성 분석 중 (STT)...";
+                            break;
+                        case 'processing_soap':
+                            // (★수정됨) recordSocket -> recordStatus (혹시 모를 오류 방지)
+                            recordStatus.textContent = "SOAP 요약 생성 중...";
+                            break;
+                        case 'completed':
+                            clearInterval(pollingInterval);
+                            pollingInterval = null;
+                            recordStatus.textContent = "요약 완료! 아래를 확인하세요.";
+                            isProcessing = false;
+                            recordButton.disabled = false;
+                            recordButton.classList.remove('btn-disabled');
+                            
+                            const finalResult = data.result || {};
+                            
+                            document.getElementById('soap-s').value = finalResult.s || "데이터 없음";
+                            document.getElementById('soap-o').value = finalResult.o || "데이터 없음";
+                            document.getElementById('soap-a').value = finalResult.a || "데이터 없음";
+                            document.getElementById('soap-p').value = finalResult.p || "데이터 없음";
+                            
+                            if (finalResult.transcript) {
+                                transcriptContainer.innerHTML = formatTranscript(finalResult.transcript);
+                            } else {
+                                transcriptContainer.innerHTML = '<p class="text-gray-400 text-center">대본 데이터가 없습니다.</p>';
+                            }
+                            break;
+                        case 'failed':
+                            clearInterval(pollingInterval);
+                            pollingInterval = null;
+                            const errorMsg = data.result ? data.result.error_message : '알 수 없는 오류';
+                            recordStatus.textContent = `처리 실패: ${errorMsg}`;
+                            isProcessing = false;
+                            recordButton.disabled = false;
+                            recordButton.classList.remove('btn-disabled');
+                            break;
+                    }
+
+                } catch (err) {
+                    console.error("폴링 오류:", err);
+                    recordStatus.textContent = "상태 확인 중 오류 발생...";
+                    // (중요) 폴링 자체의 오류이므로, 여기서 폴링을 멈추면 안 됨.
+                }
+            }, 3000); // 3초마다
+        }
+
+        // 대본 포맷팅 함수
+        function formatTranscript(transcriptText) {
+            return transcriptText.split('\n').map(line => {
+                line = line.trim();
+                if (line.startsWith('[술자]')) {
+                    // ': '가 포함된 경우와 아닌 경우 모두 처리
+                    let content = line.replace('[술자]', '').replace(':', '').trim();
+                    return `<div class="transcript-bubble transcript-doctor">${content}</div>`;
+                } else if (line.startsWith('[환자]')) {
+                    let content = line.replace('[환자]', '').replace(':', '').trim();
+                    return `<div class="transcript-bubble transcript-patient">${content}</div>`;
+                } else if (line) {
+                    return `<p class="text-sm text-gray-500">${line}</p>`; // 화자 불명
+                }
+                return '';
+            }).join('');
+        }
+
+        // --- 녹음 제어 함수 ---
+        const startRecording = () => {
+            if (!mediaRecorder) {
+                recordStatus.textContent = "녹음 장치를 초기화할 수 없습니다.";
+                return;
+            }
+            isRecording = true;
+            audioChunks = []; 
+            mediaRecorder.start();
+            
+            recordIcon.classList.add('hidden');
+            stopIcon.classList.remove('hidden');
+            recordButton.classList.remove('bg-red-600', 'hover:bg-red-700');
+            recordButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            recordStatus.textContent = "녹음 중...";
+            
+            startTimer();
+            audioPlaybackContainer.innerHTML = '';
+            resetResultUI();
+        };
+
+        const stopRecording = () => {
+            if (!mediaRecorder) return;
+            mediaRecorder.stop(); 
+            isRecording = false;
+            
+            stopIcon.classList.add('hidden');
+            recordIcon.classList.remove('hidden');
+            recordButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            recordButton.classList.add('bg-red-600', 'hover:bg-red-700');
+            recordStatus.textContent = "녹음 중지. 처리 시작..."; 
+            
+            clearInterval(timerInterval);
+        };
+        
+        const resetRecordingUI = () => {
+            stopIcon.classList.add('hidden');
+            recordIcon.classList.remove('hidden');
+            recordButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            recordButton.classList.add('bg-red-600', 'hover:bg-red-700');
+            recordButton.disabled = false;
+            recordButton.classList.remove('btn-disabled');
+            recordStatus.textContent = "클릭하여 녹음 시작";
+            timerEl.textContent = "00:00:00";
+            seconds = 0;
+            audioPlaybackContainer.innerHTML = '';
+        }
+        
+        const resetResultUI = () => {
+            document.getElementById('soap-s').value = "";
+            document.getElementById('soap-o').value = "";
+            document.getElementById('soap-a').value = "";
+            document.getElementById('soap-p').value = "";
+            transcriptContainer.innerHTML = '<p class="text-gray-400 text-center mt-10">AI 처리 완료 시 이곳에 대본이 표시됩니다.</p>';
+        }
+
+        // --- 오디오 재생 UI 설정 ---
+        const setupAudioPlayback = (audioBlob) => {
+            const audioUrl = URL.createObjectURL(audioBlob);
+            audioPlaybackContainer.innerHTML = `
+                <audio controls src="${audioUrl}" class="mt-4 rounded-lg"></audio>
+                <a href="${audioUrl}" download="recording.webm" class="text-blue-600 hover:underline text-sm mt-2">
+                    녹음 파일 다운로드
+                </a>
+            `;
+        };
+
+        // --- 타이머 함수 ---
+        const startTimer = () => {
+            seconds = 0;
+            timerEl.textContent = "00:00:00";
+            timerInterval = setInterval(() => {
+                seconds++;
+                timerEl.textContent = new Date(seconds * 1000).toISOString().substr(11, 8);
+            }, 1000);
+        };
+
+        // --- 클립보드 복사 함수 ---
+        const copyToClipboard = (button, text) => {
+            if (!text) return;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = text;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            try {
+                document.execCommand('copy');
+                button.textContent = '복사됨!';
+                setTimeout(() => {
+                    button.textContent = '복사';
+                }, 1500);
+            } catch (err) {
+                console.error('클립보드 복사 실패:', err);
+                button.textContent = '실패';
+                 setTimeout(() => {
+                    button.textContent = '복사';
+                }, 1500);
+            }
+            document.body.removeChild(tempTextArea);
+        };
+
+        // --- 이벤트 리스너 연결 ---
+        startButton.addEventListener('click', initiateRecordingSession);
+        backButton.addEventListener('click', showMainPage);
+        recordButton.addEventListener('click', () => {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+        copyButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.dataset.target;
+                const targetTextarea = document.getElementById(targetId);
+                copyToClipboard(button, targetTextarea.value);
+            });
+        });
+
+        console.log("AI Dental App 스크립트 로드 완료.");
+    </script>
+</body>
+</html>
