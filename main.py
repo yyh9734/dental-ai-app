@@ -38,7 +38,7 @@ app = FastAPI()
 
 # (★수정됨) OOO님의 'Static Site' (프론트엔드) URL을 허용
 origins = [
-    "https://[OOO님의-프론트엔드-URL].onrender.com"  # [TODO] 1단계에서 찾은 'Static Site' URL로 교체
+    "https://dental-ui-frontend.onrender.com"
     # "http://localhost:8080" # (선택) 로컬 테스트용
 ]
 
