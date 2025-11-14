@@ -16,7 +16,7 @@ load_dotenv()
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-AWS_REGION = "ap-northeast-2"
+AWS_REGION = "ap-southeast-2"
 S3_BUCKET_NAME = "dental-ai-recordings"
 
 # (★수정됨) OOO님의 'Web Service (API 서버)' URL로 교체
