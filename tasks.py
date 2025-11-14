@@ -1,4 +1,4 @@
-# === tasks.py (Render 배포용 - 전체 텍스트) ===
+# === tasks.py (AWS Transcribe Standard로 변경) ===
 import os
 import time
 import boto3
@@ -19,12 +19,10 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 AWS_REGION = "ap-northeast-2"
 S3_BUCKET_NAME = "dental-ai-recordings"
 
-# (★수정됨) API 서버 주소 (Render의 'Web Service' URL)
-# [TODO] OOO님의 'Web Service (API 서버)' URL로 교체
+# (★수정됨) OOO님의 'Web Service (API 서버)' URL로 교체
 API_SERVER_URL = "https://dental-ai-app-xyj4.onrender.com"
 
 # (★수정됨) Celery 설정 (Render의 'Key Value' URL)
-# (Render 환경 변수에서 CELERY_BROKER_URL, CELERY_RESULT_BACKEND를 읽어옴)
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
 
@@ -68,18 +66,23 @@ else:
 def update_job_status(job_id, status, result=None):
     try:
         payload = {"job_id": job_id, "status": status, "result": result}
-        # (★수정됨) API_SERVER_URL 사용
         requests.post(f"{API_SERVER_URL}/api/update-job-status", json=payload)
         print(f"CELERY-WORKER: Job {job_id} 상태 -> {status} (API 서버로 전송)")
     except Exception as e:
         print(f"CELERY-WORKER: (치명적) API 서버로 상태 업데이트 실패: {e}")
 
 # =================================================================
-# 실제 AWS Transcribe 호출 및 파싱 함수
+# (신규) 실제 AWS Transcribe 호출 및 파싱 함수
 # =================================================================
 
 def parse_transcribe_json(result_json):
+    """
+    AWS Transcribe의 복잡한 JSON 결과를 [spk_0]: ... [spk_1]: ... 형태의
+    간단한 텍스트 대본으로 변환합니다. (Standard/Medical 호환 시도)
+    """
     try:
+        # Standard Transcribe는 speaker_labels.segments를, Medical은 items에 speaker_label을 줌
+        # 우선 Standard/Medical 공통으로 존재하는 'items' 기반으로 파싱 시도
         items = result_json['results']['items']
     except KeyError:
         print("WORKER: Transcribe JSON 결과가 예상과 다릅니다. 'results' 또는 'items' 키 없음.")
@@ -90,7 +93,8 @@ def parse_transcribe_json(result_json):
     current_line_words = []
 
     for item in items:
-        speaker = item.get('speaker_label', None)
+        # (중요) Standard는 'speaker_label'이 없을 수 있음. Medical은 있음.
+        speaker = item.get('speaker_label', 'spk_0') # Standard에서 speaker_label 없으면 일단 spk_0로 가정
         content = item['alternatives'][0]['content']
         item_type = item.get('type', 'pronunciation') 
         
@@ -118,6 +122,9 @@ def parse_transcribe_json(result_json):
     return final_transcript
 
 def call_aws_transcribe_real(job_id, s3_file_key):
+    """
+    (★수정됨) AWS Transcribe Standard (일반용)을 비동기식으로 호출합니다.
+    """
     if not transcribe_client or not s3_client:
         raise Exception("AWS 클라이언트가 초기화되지 않았습니다.")
     
@@ -125,18 +132,20 @@ def call_aws_transcribe_real(job_id, s3_file_key):
     s3_media_uri = f"s3://{S3_BUCKET_NAME}/{s3_file_key}"
     output_key = f"results/{transcription_job_name}.json"
     
-    print(f"CELERY-WORKER: Job {job_id} | 1. (REAL) AWS Transcribe Medical 작업 시작...")
+    print(f"CELERY-WORKER: Job {job_id} | 1. (REAL) AWS Transcribe **Standard** 작업 시작...")
     print(f"CELERY-WORKER: Job Name: {transcription_job_name}, Media URI: {s3_media_uri}")
     
     try:
-        transcribe_client.start_medical_transcription_job(
-            MedicalTranscriptionJobName=transcription_job_name,
-            LanguageCode='ko-KR',
+        # (★수정됨) Medical API -> Standard API
+        transcribe_client.start_transcription_job(
+            TranscriptionJobName=transcription_job_name,
+            LanguageCode='ko-KR', # Standard는 'ko-KR' 지원
             Media={'MediaFileUri': s3_media_uri},
             OutputBucketName=S3_BUCKET_NAME,
             OutputKey=output_key, 
-            Specialty='PRIMARYCARE',
-            Type='CONVERSATION',
+            
+            # (★수정됨) Medical 전용 파라미터(Specialty, Type) 제거
+            
             Settings={
                 'ShowSpeakerLabels': True,
                 'MaxSpeakerLabels': 2 
@@ -151,10 +160,12 @@ def call_aws_transcribe_real(job_id, s3_file_key):
 
     while True:
         try:
-            job = transcribe_client.get_medical_transcription_job(
-                MedicalTranscriptionJobName=transcription_job_name
+            # (★수정됨) Medical API -> Standard API
+            job = transcribe_client.get_transcription_job(
+                TranscriptionJobName=transcription_job_name
             )
-            job_status = job['MedicalTranscriptionJob']['TranscriptionJobStatus']
+            # (★수정됨) Medical JSON 경로 -> Standard JSON 경로
+            job_status = job['TranscriptionJob']['TranscriptionJobStatus']
             
             if job_status in ['COMPLETED', 'FAILED']:
                 break
@@ -168,7 +179,8 @@ def call_aws_transcribe_real(job_id, s3_file_key):
             time.sleep(5)
 
     if job_status == 'FAILED':
-        failure_reason = job['MedicalTranscriptionJob'].get('FailureReason', '알 수 없는 이유')
+        # (★수정됨) Medical JSON 경로 -> Standard JSON 경로
+        failure_reason = job['TranscriptionJob'].get('FailureReason', '알 수 없는 이유')
         print(f"CELERY-WORKER: Job {job_id} | 1. STT 실패: {failure_reason}")
         raise Exception(f"AWS Transcribe 실패: {failure_reason}")
 
@@ -278,10 +290,10 @@ def process_audio_task(job_id, file_key):
     
     try:
         update_job_status(job_id, "processing_stt")
-        transcript_text = call_aws_transcribe_real(job_id, file_key)
+        transcript_text = call_aws_transcribe_real(job_id, file_key) # (실제 함수 호출)
 
         update_job_status(job_id, "processing_soap")
-        final_result = summarize_soap_real(job_id, transcript_text)
+        final_result = summarize_soap_real(job_id, transcript_text) # (실제 함수 호출)
 
         update_job_status(job_id, "completed", result=final_result)
         
