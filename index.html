@@ -411,7 +411,8 @@
                 }
             });
             
-            // 4. 기능 페이지(녹음기)에서는 네비게이션 바/푸터 숨기기
+            // 4. (★삭제) 기능 페이지에서 Nav/Footer를 숨기던 로직 제거
+            /*
             if (pageIdToShow === 'featurePage') {
                 navbar.classList.add('hidden');
                 footer.classList.add('hidden'); // 푸터 숨기기
@@ -419,6 +420,7 @@
                 navbar.classList.remove('hidden');
                 footer.classList.remove('hidden'); // 푸터 보이기
             }
+            */
             
             // 5. 페이지 상단으로 스크롤
             window.scrollTo(0, 0);
@@ -466,20 +468,24 @@
         modalProceedButton.addEventListener('click', forceShowMainPage);
 
         // --- 녹음 세션 초기화 (메인 -> 기능) ---
+        // (★수정됨) 페이지 이동 전, 메인 페이지에서 권한을 먼저 받도록 로직 변경
         const initiateRecordingSession = async () => {
+            
             try {
-                // 1. 마이크 권한 요청
+                // 1. (★수정) 메인 페이지에서 마이크 권한 요청
                 audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mainSubCopy.textContent = "마이크 권한이 확인되었습니다. 잠시 기다려주세요...";
                 
-                // 2. MediaRecorder 설정
+                // 2. (★수정) 권한 성공 시 mainSubCopy 업데이트
+                mainSubCopy.textContent = "마이크 권한이 확인되었습니다. 잠시 기다려주세요...";
+
+                // 3. MediaRecorder 설정
                 mediaRecorder = new MediaRecorder(audioStream);
                 
                 mediaRecorder.ondataavailable = (event) => {
                     audioChunks.push(event.data);
                 };
 
-                // 3. 녹음 중지 시 (핵심 로직: 프록시 업로드)
+                // 4. 녹음 중지 시 (핵심 로직: 프록시 업로드)
                 mediaRecorder.onstop = async () => {
                     const mimeType = mediaRecorder.mimeType || 'audio/webm';
                     const audioBlob = new Blob(audioChunks, { type: mimeType });
@@ -527,12 +533,20 @@
                     }
                 };
                 
-                // 4. 모든 설정 완료 후, 기능 페이지로 이동
+                // 5. (★이동) 모든 권한/설정 완료 후 페이지 이동
                 showFeaturePage();
+                
+                // (★추가) 기능 페이지의 상태 텍스트 초기화
+                recordStatus.textContent = "클릭하여 녹음 시작";
+
 
             } catch (err) {
                 console.error("마이크 권한 오류:", err);
-                mainSubCopy.textContent = "마이크 권한을 허용해야 앱을 사용할 수 있습니다.";
+                
+                // (★수정) mainSubCopy(메인 페이지)에 오류 메시지 표시
+                mainSubCopy.textContent = "오류: 마이크 권한을 허용해야 녹음을 시작할 수 있습니다.";
+                
+                // (★삭제) 'featurePage'의 버튼을 수정하려던 로직 삭제 (페이지 이동 전이므로)
             }
         };
 
