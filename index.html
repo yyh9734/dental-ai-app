@@ -1,11 +1,15 @@
-<!-- === index.html (InternSam 브랜딩 적용) === -->
+<!-- === index.html (AdSense 승인 보강 버전) === -->
 <!DOCTYPE html>
 <html lang="ko" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- (★수정됨) 브라우저 탭 제목 -->
-    <title>InternSam</title>
+    <title>InternSam - AI 진료 기록 어시스턴트</title>
+    
+    <!-- (신규) AdSense 승인용 사이트 소유권 확인 코드 (Phase 1, 3단계) -->
+    <!-- [TODO] Google AdSense에서 발급받은 data-ad-client 코드를 여기에 붙여넣으세요. -->
+    <!-- 예: <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script> -->
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,38 +26,106 @@
         .transcript-doctor { @apply bg-blue-600 text-white self-end; }
         .modal-overlay { @apply fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300; }
         .modal-content { @apply bg-white p-6 rounded-lg shadow-xl w-full max-w-md mx-4 transition-transform transform duration-300; }
+        
+        /* (신규) 페이지 전환용 'page' 클래스 */
+        .page { @apply hidden; }
+        .page.active { @apply block; }
     </style>
 </head>
-<body class="h-full bg-gray-50 text-gray-900 antialiased">
+<body class="h-full bg-gray-50 text-gray-900 antialiased flex flex-col">
 
-    <div id="app-wrapper" class="h-full">
-        <!-- ===== 메인 페이지 ===== -->
-        <section id="mainPage" class="flex flex-col items-center justify-center h-full p-6 text-center bg-gradient-to-br from-blue-50 to-white">
-            <div class="mb-8">
-                <!-- (★수정됨) SVG 아이콘 -> logo.png 이미지 -->
-                <!-- 이 이미지가 작동하려면 logo.png 파일이 index.html과 같은 폴더에 있어야 합니다. -->
-                <img src="logo.png" alt="InternSam Logo" class="w-16 h-16 mx-auto">
-                
-                <!-- (★수정됨) <h1> 제목 -->
-                <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mt-4">InternSam</h1>
-                <p id="mainSubCopy" class="text-lg md:text-xl text-gray-600 mt-3 max-w-2xl">
-                    진료 대화 녹음 버튼 하나로 SOAP 차트가 완성됩니다.
-                </p>
+    <!-- (신규) 1. Navigation Bar (AdSense 크롤러용) -->
+    <nav id="navbar" class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- 로고 -->
+                <div class="flex-shrink-0 flex items-center">
+                    <img class="h-8 w-auto" src="logo.png" alt="InternSam Logo">
+                    <span class="font-bold text-xl ml-2 text-gray-800">InternSam</span>
+                </div>
+                <!-- 메뉴 링크 (JS로 제어) -->
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                    <a href="#home" id="navHome" class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-blue-500 text-sm font-medium text-gray-900">
+                        홈
+                    </a>
+                    <a href="#about" id="navAbout" class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                        서비스 소개
+                    </a>
+                    <a href="#privacy" id="navPrivacy" class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                        개인정보 처리방침
+                    </a>
+                </div>
             </div>
-            <button id="startButton" class="btn-primary !text-lg !px-8 !py-3 !rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                새 진료 녹음 시작하기
-            </button>
+        </div>
+    </nav>
+
+    <!-- (수정됨) 2. App Wrapper (페이지 컨테이너) -->
+    <div id="app-wrapper" class="flex-1">
+        
+        <!-- ===== 2A. 메인 페이지 (홈) ===== -->
+        <section id="mainPage" class="page active h-full flex flex-col justify-center">
+            <div class="flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-blue-50 to-white">
+                <div class="mb-8">
+                    <img src="logo.png" alt="InternSam Logo" class="w-16 h-16 mx-auto">
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mt-4">InternSam</h1>
+                    <p id="mainSubCopy" class="text-lg md:text-xl text-gray-600 mt-3 max-w-2xl">
+                        AI가 진료 대화를 분석하여 SOAP 차트를 완성합니다.
+                    </p>
+                </div>
+                <button id="startButton" class="btn-primary !text-lg !px-8 !py-3 !rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    새 진료 녹음 시작하기
+                </button>
+            </div>
+            
+            <!-- (신규) "How it Works" 콘텐츠 -->
+            <div class="py-12 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 class="text-3xl font-bold text-center text-gray-900">3초만에 끝나는 차팅</h2>
+                    <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="text-center">
+                            <div class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-600 text-white font-bold text-xl mx-auto">1</div>
+                            <h3 class="mt-4 text-lg font-medium text-gray-900">대화 녹음</h3>
+                            <p class="mt-2 text-base text-gray-500">진료 중 환자와의 대화를 버튼 하나로 녹음합니다.</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-600 text-white font-bold text-xl mx-auto">2</div>
+                            <h3 class="mt-4 text-lg font-medium text-gray-900">AI 분석 (SOAP)</h3>
+                            <p class="mt-2 text-base text-gray-500">AI가 화자를 분리하고 대화 내용을 SOAP 폼으로 자동 분류합니다.</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-600 text-white font-bold text-xl mx-auto">3</div>
+                            <h3 class="mt-4 text-lg font-medium text-gray-900">차트 복사</h3>
+                            <p class="mt-2 text-base text-gray-500">완성된 요약본을 EMR/차트에 바로 복사-붙여넣기 합니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- (신규) 광고 배너 영역 -->
+            <!-- [TODO] Phase 2: AdSense 승인 후, 이 <ins>...</ins> 태그를 Google 광고 코드로 교체 -->
+            <div class="bg-gray-100 p-6 my-8 text-center">
+                <h3 class="font-semibold text-gray-700">파트너 광고</h3>
+                <div class="mt-4 bg-gray-300 rounded-lg h-32 w-full max-w-4xl mx-auto flex items-center justify-center">
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="ca-pub-XXXXXXXXXX"
+                         data-ad-slot="YYYYYYYYYY"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
+                    <span class="text-gray-500">(광고 영역 - AdSense 승인 대기 중)</span>
+                </div>
+            </div>
         </section>
 
-        <!-- ===== 기능 페이지 (기본 숨김) ===== -->
-        <section id="featurePage" class="hidden h-full flex flex-col p-4 md:p-8">
+        <!-- ===== 2B. 기능 페이지 (녹음기) ===== -->
+        <section id="featurePage" class="page h-full flex flex-col p-4 md:p-8">
             <!-- 헤더 -->
             <header class="flex justify-between items-center pb-4 border-b border-gray-200">
                 <h2 class="text-2xl font-bold text-gray-800">새 진료 녹음</h2>
-                <button id="backButton" class="btn-secondary">메인으로</button>
+                <button id="backButton" class="btn-secondary">홈으로</button>
             </header>
-
-            <!-- 녹음 컨트롤러 -->
+            
+            <!-- (기존 녹음기 UI - 생략) ... -->
             <div class="flex flex-col items-center justify-center py-6 md:py-10 bg-white rounded-lg shadow-inner my-4 border border-gray-200">
                 <button id="recordButton" class="w-20 h-20 rounded-full bg-red-600 hover:bg-red-700 shadow-lg flex items-center justify-center text-white transition-all duration-300">
                     <svg id="recordIcon" class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
@@ -67,21 +139,16 @@
                 <p id="recordStatus" class="text-lg text-gray-500 mt-2">클릭하여 녹음 시작</p>
                 <div id="audioPlaybackContainer" class="mt-4"></div>
             </div>
-
-            <!-- 결과 영역 -->
             <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden">
-                <!-- 왼쪽: 전체 대본 -->
                 <div class="flex flex-col h-full bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
                     <h3 class="text-lg font-semibold p-4 border-b border-gray-200">전체 대본</h3>
                     <div id="transcriptContainer" class="flex-1 p-4 space-y-3 overflow-y-auto">
                         <p class="text-gray-400 text-center mt-10">AI 처리 완료 시 이곳에 대본이 표시됩니다.</p>
                     </div>
                 </div>
-                <!-- 오른쪽: SOAP 요약 -->
                 <div class="flex flex-col h-full bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
                     <h3 class="text-lg font-semibold p-4 border-b border-gray-200">SOAP 요약</h3>
                     <div class="flex-1 p-4 space-y-4 overflow-y-auto">
-                        <!-- S -->
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <label for="soap-s" class="block text-sm font-bold text-gray-700">S (Subjective)</label>
@@ -89,7 +156,6 @@
                             </div>
                             <textarea id="soap-s" rows="4" class="w-full p-2 border border-gray-300 rounded-md shadow-inner bg-gray-50" readonly></textarea>
                         </div>
-                        <!-- O -->
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <label for="soap-o" class="block text-sm font-bold text-gray-700">O (Objective)</label>
@@ -97,7 +163,6 @@
                             </div>
                             <textarea id="soap-o" rows="4" class="w-full p-2 border border-gray-300 rounded-md shadow-inner bg-gray-50" readonly></textarea>
                         </div>
-                        <!-- A -->
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <label for="soap-a" class="block text-sm font-bold text-gray-700">A (Assessment)</label>
@@ -105,7 +170,6 @@
                             </div>
                             <textarea id="soap-a" rows="4" class="w-full p-2 border border-gray-300 rounded-md shadow-inner bg-gray-50" readonly></textarea>
                         </div>
-                        <!-- P -->
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <label for="soap-p" class="block text-sm font-bold text-gray-700">P (Plan)</label>
@@ -117,7 +181,75 @@
                 </div>
             </div>
         </section>
+
+        <!-- ===== (신규) 2C. 서비스 소개 페이지 ===== -->
+        <section id="aboutPage" class="page max-w-4xl mx-auto p-6 md:p-10 bg-white shadow-lg rounded-lg my-10">
+            <h1 class="text-3xl font-bold text-gray-900 border-b pb-4">서비스 소개 (About InternSam)</h1>
+            <div class="mt-6 space-y-4 text-gray-700">
+                <p>InternSam은 바쁜 치과 진료 환경 속에서 의료진의 행정 업무 부담을 획기적으로 줄이기 위해 탄생한 AI 기반 진료 기록 어시스턴트입니다.</p>
+                <h2 class="text-2xl font-semibold pt-4">핵심 문제</h2>
+                <p>환자와의 진료 상담 내용은 EMR(전자 의무 기록)에 SOAP 형식으로 정확하게 기록되어야 합니다. 하지만 진료가 몰리는 시간에는 이 차팅 작업이 큰 부담이 되며, 기록이 누락되거나 지연되기 쉽습니다.</p>
+                <h2 class="text-2xl font-semibold pt-4">InternSam의 해결책</h2>
+                <ul class="list-disc list-inside space-y-2">
+                    <li><strong>AI 기반 SOAP 노트 생성:</strong> 진료 중 대화를 녹음하면, AI가 자동으로 환자와 술자의 발언을 분리하고, 의학적 맥락을 분석하여 SOAP (Subjective, Objective, Assessment, Plan) 형식의 차트를 생성합니다.</li>
+                    <li><strong>시간 절약:</strong> 차팅에 소요되는 시간을 90% 이상 절감하여, 의료진이 환자에게 더 집중할 수 있는 환경을 만듭니다.</li>
+                    <li><strong>정확도 향상:</strong> AI가 대화의 핵심 내용을 놓치지 않고 객관적으로 기록하여, 차트의 완성도와 정확성을 높입니다.</li>
+                </ul>
+                <p class="pt-4">InternSam과 함께 더 효율적이고 환자 중심적인 진료 환경을 만들어가세요.</p>
+            </div>
+        </section>
+
+        <!-- ===== (신규) 2D. 개인정보 처리방침 페이지 (★AdSense 필수★) ===== -->
+        <section id="privacyPage" class="page max-w-4xl mx-auto p-6 md:p-10 bg-white shadow-lg rounded-lg my-10">
+            <h1 class="text-3xl font-bold text-gray-900 border-b pb-4">개인정보 처리방침</h1>
+            <div class="mt-6 space-y-4 text-gray-600 text-sm">
+                <p>InternSam(이하 '서비스')은(는) 이용자의 개인정보를 중요시하며, "정보통신망 이용촉진 및 정보보호"에 관한 법률을 준수하고 있습니다. 본 서비스는 개인정보 처리방침을 통하여 이용자가 제공하는 개인정보가 어떠한 용도와 방식으로 이용되고 있으며, 개인정보보호를 위해 어떠한 조치가 취해지고 있는지 알려드립니다.</p>
+                
+                <h2 class="text-xl font-semibold pt-4 text-gray-800">1. 수집하는 개인정보의 항목</h2>
+                <p>본 서비스는 원활한 서비스 제공을 위해 다음의 정보를 수집할 수 있습니다.</p>
+                <ul class="list-disc list-inside ml-4">
+                    <li>(필수) 진료 대화 음성 파일: 서비스의 핵심 기능인 SOAP 노트 생성을 위해 수집되며, AI 분석 후 즉시 파기되거나 사용자의 별도 동의 하에 암호화되어 보관됩니다. (현재 버전에서는 서버에 저장되지 않고 즉시 처리됩니다.)</li>
+                    <li>(선택) 접속 로그, 쿠키, IP 주소: 서비스 이용 통계 및 광고 최적화를 위해 수집될 수 있습니다.</li>
+                </ul>
+
+                <h2 class="text-xl font-semibold pt-4 text-gray-800">2. 개인정보의 수집 및 이용목적</h2>
+                <p>서비스는 수집한 개인정보를 다음의 목적을 위해 활용합니다.</p>
+                <ul class="list-disc list-inside ml-4">
+                    <li>AI 기반 SOAP 노트 생성 및 제공</li>
+                    <li>서비스 장애 대응 및 이용 문의 응대</li>
+                    <li>(★AdSense 필수★) Google AdSense 등 제3자 광고 파트너를 통한 맞춤형 광고 제공</li>
+                </ul>
+
+                <h2 class="text-xl font-semibold pt-4 text-gray-800">3. (★AdSense 필수★) 광고 및 쿠키 사용</h2>
+                <p>본 서비스는 Google AdSense를 포함한 제3자 광고 사업자가 제공하는 광고를 게재할 수 있습니다. 이 과정에서 이용자의 브라우저에 쿠키(cookie)가 저장될 수 있습니다.</p>
+                <ul class="list-disc list-inside ml-4">
+                    <li>Google을 포함한 제3자 광고 사업자는 쿠키를 사용하여 본 웹사이트 또는 다른 웹사이트에 대한 이용자의 이전 방문 기록을 기반으로 광고를 게재합니다.</li>
+                    <li>Google이 광고 쿠키를 사용하면 Google 및 Google의 파트너는 본 사이트 및/또는 다른 사이트의 방문 기록을 토대로 이용자에게 맞춤 광고를 표시할 수 있습니다.</li>
+                    <li>이용자는 <a href="https://adssettings.google.com/authenticated" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Google 광고 설정</a>에서 맞춤 광고 게재를 중단할 수 있습니다.</li>
+                </ul>
+
+                <h2 class="text-xl font-semibold pt-4 text-gray-800">4. 개인정보의 보유 및 이용기간</h2>
+                <p>음성 파일은 원칙적으로 AI 분석 완료 후 즉시 파기합니다. 단, 관련 법령의 규정에 의하여 보존할 필요가 있는 경우 회사는 아래와 같이 관계 법령에서 정한 일정한 기간 동안 회원 정보를 보관합니다.</p>
+                
+                <h2 class="text-xl font-semibold pt-4 text-gray-800">5. 개인정보의 파기절차 및 방법</h2>
+                <p>서비스는 원칙적으로 개인정보 수집 및 이용목적이 달성된 후에는 해당 정보를 지체 없이 파기합니다. 파기절차 및 방법은 다음과 같습니다...</p>
+                
+                <p class="pt-4 font-semibold text-gray-800">본 방침은 2025년 11월 15일부터 시행됩니다.</p>
+            </div>
+        </section>
     </div>
+
+    <!-- (신규) 3. Footer (AdSense 크롤러용) -->
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
+            <p>&copy; 2025 InternSam. All rights reserved.</p>
+            <div class="mt-2 space-x-4">
+                <a href="#home" class="nav-link hover:text-gray-900">홈</a>
+                <a href="#about" class="nav-link hover:text-gray-900">서비스 소개</a>
+                <a href="#privacy" class="nav-link hover:text-gray-900">개인정보 처리방침</a>
+            </div>
+        </div>
+    </footer>
 
     <!-- 경고 모달 (기본 숨김) -->
     <div id="warningModal" class="modal-overlay hidden">
@@ -132,10 +264,17 @@
     </div>
 
     <script>
-        console.log("AI Dental App 스크립트 로드 시작 (프록시 버전).");
+        console.log("AI Dental App 스크립트 로드 시작 (AdSense 보강).");
         // --- DOM 요소 선택 ---
+        const navbar = document.getElementById('navbar');
+        const allPages = document.querySelectorAll('.page');
+        const navLinks = document.querySelectorAll('.nav-link');
+        
         const mainPage = document.getElementById('mainPage');
         const featurePage = document.getElementById('featurePage');
+        const aboutPage = document.getElementById('aboutPage');
+        const privacyPage = document.getElementById('privacyPage');
+
         const startButton = document.getElementById('startButton');
         const backButton = document.getElementById('backButton');
         const recordButton = document.getElementById('recordButton');
@@ -148,7 +287,6 @@
         const copyButtons = document.querySelectorAll('.btn-copy');
         const mainSubCopy = document.getElementById('mainSubCopy');
         
-        // --- 모달 요소 ---
         const warningModal = document.getElementById('warningModal');
         const modalMessage = document.getElementById('modalMessage');
         const modalCancelButton = document.getElementById('modalCancelButton');
@@ -167,13 +305,45 @@
         let pollingInterval = null; 
         
         // --- 상수 ---
-        // (Render 배포용 URL - OOO님의 API 서버 URL로 교체됨)
         const API_BASE_URL = "https://dental-ai-app-xyj4.onrender.com"; 
 
-        // --- 페이지 전환 함수 ---
+        // --- (신규) 페이지 내비게이션 로직 ---
+        const showPage = (pageIdToShow) => {
+            // 1. 모든 페이지 숨기기
+            allPages.forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // 2. 특정 페이지만 보이기
+            const pageToShow = document.getElementById(pageIdToShow);
+            if (pageToShow) {
+                pageToShow.classList.add('active');
+            }
+
+            // 3. 네비게이션 바 스타일 업데이트
+            navLinks.forEach(link => {
+                link.classList.remove('border-blue-500', 'text-gray-900');
+                link.classList.add('border-transparent', 'text-gray-500', 'hover:border-gray-300', 'hover:text-gray-700');
+                if (link.id === `nav${pageIdToShow.replace('Page', '')}`) {
+                    link.classList.add('border-blue-500', 'text-gray-900');
+                    link.classList.remove('border-transparent', 'text-gray-500');
+                }
+            });
+            
+            // 4. 기능 페이지(녹음기)에서는 네비게이션 바 숨기기
+            if (pageIdToShow === 'featurePage') {
+                navbar.classList.add('hidden');
+            } else {
+                navbar.classList.remove('hidden');
+            }
+            
+            // 5. 페이지 상단으로 스크롤
+            window.scrollTo(0, 0);
+        };
+
+        // --- 페이지 전환 함수 (수정됨) ---
         const showFeaturePage = () => {
-            mainPage.classList.add('hidden');
-            featurePage.classList.remove('hidden');
+            showPage('featurePage');
         };
 
         const forceShowMainPage = () => {
@@ -192,8 +362,7 @@
             resetRecordingUI();
             resetResultUI();
 
-            featurePage.classList.add('hidden');
-            mainPage.classList.remove('hidden');
+            showPage('mainPage'); // (수정됨)
             warningModal.classList.add('hidden');
         };
         
@@ -468,14 +637,13 @@
 
         // --- 이벤트 리스너 연결 ---
         startButton.addEventListener('click', initiateRecordingSession);
-        backButton.addEventListener('click', showMainPage);
+        backButton.addEventListener('click', forceShowMainPage);
         
-        // (★수정됨) 버그 수정
         recordButton.addEventListener('click', () => {
             if (isRecording) {
                 stopRecording();
             } else {
-                startRecording(); // <--- 'stopRecording()'에서 'startRecording()'으로 수정됨
+                startRecording();
             }
         });
 
@@ -484,6 +652,28 @@
                 const targetId = button.dataset.target;
                 const targetTextarea = document.getElementById(targetId);
                 copyToClipboard(button, targetTextarea.value);
+            });
+        });
+
+        // (신규) 네비게이션 링크 이벤트 리스너
+        document.getElementById('navHome').addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('mainPage');
+        });
+        document.getElementById('navAbout').addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('aboutPage');
+        });
+        document.getElementById('navPrivacy').addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('privacyPage');
+        });
+        // (신규) 푸터 링크 이벤트 리스너
+        document.querySelectorAll('footer .nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = e.target.getAttribute('href').substring(1) + 'Page'; // #home -> homePage
+                showPage(pageId);
             });
         });
 
