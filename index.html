@@ -14,20 +14,23 @@
         crossorigin="anonymous"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     
     <!-- (★롤백됨) @apply 규칙들을 <style> 태그로 복원 -->
     <style>
         body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
-        .btn-primary { @apply text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 transition-all duration-300 ease-in-out shadow-md; }
+        /* (★수정됨) Primary 버튼 색상을 '라이트 핑크' 계열로 변경 (500->400) */
+        .btn-primary { @apply text-white bg-pink-400 hover:bg-pink-500 focus:ring-4 focus:ring-pink-200 font-medium rounded-lg text-sm px-5 py-2.5 transition-all duration-300 ease-in-out shadow-md; }
         .btn-secondary { @apply text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 transition-all duration-300 ease-in-out shadow-sm; }
         .btn-danger { @apply text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 transition-all duration-300 ease-in-out shadow-md; }
-        .btn-copy { @apply ml-2 text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-1 bg-blue-100 hover:bg-blue-200 rounded-md transition-all; }
+        /* (★수정됨) Copy 버튼 색상을 '라이트 핑크' 계열로 변경 (600->500, 100->50) */
+        .btn-copy { @apply ml-2 text-xs text-pink-500 hover:text-pink-700 font-medium px-2 py-1 bg-pink-50 hover:bg-pink-100 rounded-md transition-all; }
         .btn-disabled { @apply bg-gray-400 text-gray-200 cursor-not-allowed; }
         .transcript-bubble { @apply p-3 rounded-lg max-w-xs md:max-w-md; }
         .transcript-patient { @apply bg-gray-100 text-gray-800 self-start; }
-        .transcript-doctor { @apply bg-blue-600 text-white self-end; }
+        /* (★수정됨) Doctor(술자) 대화창 색상을 '라이트 핑크' 계열로 변경 (500->400) */
+        .transcript-doctor { @apply bg-pink-400 text-white self-end; }
         .modal-overlay { @apply fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300; }
         .modal-content { @apply bg-white p-6 rounded-lg shadow-xl w-full max-w-md mx-4 transition-transform transform duration-300; }
         
@@ -67,7 +70,7 @@
 
                 <!-- 모바일 햄버거 버튼 -->
                 <div class="sm:hidden flex items-center">
-                    <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500" aria-controls="mobile-menu" aria-expanded="false">
+                    <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-pink-500" aria-controls="mobile-menu" aria-expanded="false">
                         <span class="sr-only">Open main menu</span>
                         <svg id="hamburger-icon" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -97,7 +100,7 @@
         <!-- ===== 2A. 메인 페이지 (홈) ===== -->
         <!-- (★수정) 'hidden' 클래스를 사용하지 않습니다. JS가 로드 시 처리합니다. -->
         <section id="mainPage" class="page h-full flex flex-col justify-center"> <!-- active 클래스 없음 -->
-            <div class="flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-blue-50 to-white">
+            <div class="flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-pink-50 to-white">
                 <div class="mb-8">
                     <!-- (★수정) 실제 로고 이미지로 변경 -->
                     <img class="h-16 w-16 mx-auto" src="logo.svg" alt="InternSam Logo">
@@ -117,17 +120,20 @@
                     <h2 class="text-3xl font-bold text-center text-gray-900">3초만에 끝나는 차팅</h2>
                     <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div class="text-center">
-                            <div class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-600 text-white font-bold text-xl mx-auto">1</div>
+                            <!-- (★수정됨) How it Works 아이콘 색상 (라이트 핑크) -->
+                            <div class="flex items-center justify-center h-12 w-12 rounded-full bg-pink-400 text-white font-bold text-xl mx-auto">1</div>
                             <h3 class="mt-4 text-lg font-medium text-gray-900">대화 녹음</h3>
                             <p class="mt-2 text-base text-gray-500">진료 중 환자와의 대화를 버튼 하나로 녹음합니다.</p>
                         </div>
                         <div class="text-center">
-                            <div class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-600 text-white font-bold text-xl mx-auto">2</div>
+                            <!-- (★수정됨) How it Works 아이콘 색상 (라이트 핑크) -->
+                            <div class="flex items-center justify-center h-12 w-12 rounded-full bg-pink-400 text-white font-bold text-xl mx-auto">2</div>
                             <h3 class="mt-4 text-lg font-medium text-gray-900">AI 분석 (SOAP)</h3>
                             <p class="mt-2 text-base text-gray-500">AI가 화자를 분리하고 대화 내용을 SOAP 폼으로 자동 분류합니다.</p>
                         </div>
                         <div class="text-center">
-                            <div class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-600 text-white font-bold text-xl mx-auto">3</div>
+                            <!-- (★수정됨) How it Works 아이콘 색상 (라이트 핑크) -->
+                            <div class="flex items-center justify-center h-12 w-12 rounded-full bg-pink-400 text-white font-bold text-xl mx-auto">3</div>
                             <h3 class="mt-4 text-lg font-medium text-gray-900">차트 복사</h3>
                             <p class="mt-2 text-base text-gray-500">완성된 요약본을 EMR/차트에 바로 복사-붙여넣기 합니다.</p>
                         </div>
@@ -146,7 +152,7 @@
                          data-ad-slot="YYYYYYYYYY" <!-- [TODO] 실제 Ad slot ID로 교체 필요 -->
                          data-ad-format="auto"
                          data-full-width-responsive="true"></ins>
-                    <span class="text-gray-500">(광고 영역 - AdSense 승인 대기 중)</span>
+                    <!-- (★삭제) "(광고 영역 - AdSense 승인 대기 중)" 텍스트 삭제 -->
                 </div>
             </div>
         </section>
@@ -256,15 +262,17 @@
                 <ul class="list-disc list-inside ml-4">
                     <li>AI 기반 SOAP 노트 생성 및 제공</li>
                     <li>서비스 장애 대응 및 이용 문의 응대</li>
-                    <li>(★AdSense 필수★) Google AdSense 등 제3자 광고 파트너를 통한 맞춤형 광고 제공</li>
+                    <!-- (★삭제) "(★AdSense 필수★)" 텍스트 삭제 -->
+                    <li>Google AdSense 등 제3자 광고 파트너를 통한 맞춤형 광고 제공</li>
                 </ul>
 
-                <h2 class="text-xl font-semibold pt-4 text-gray-800">3. (★AdSense 필수★) 광고 및 쿠키 사용</h2>
+                <h2 class="text-xl font-semibold pt-4 text-gray-800">3. 광고 및 쿠키 사용</h2>
+                <!-- (★삭제) "(★AdSense 필수★)" 텍스트 삭제 -->
                 <p>본 서비스는 Google AdSense를 포함한 제3자 광고 사업자가 제공하는 광고를 게재할 수 있습니다. 이 과정에서 이용자의 브라우저에 쿠키(cookie)가 저장될 수 있습니다.</p>
                 <ul class="list-disc list-inside ml-4">
                     <li>Google을 포함한 제3자 광고 사업자는 쿠키를 사용하여 본 웹사이트 또는 다른 웹사이트에 대한 이용자의 이전 방문 기록을 기반으로 광고를 게재합니다.</li>
                     <li>Google이 광고 쿠키를 사용하면 Google 및 Google의 파트너는 본 사이트 및/또는 다른 사이트의 방문 기록을 토대로 이용자에게 맞춤 광고를 표시할 수 있습니다.</li>
-                    <li>이용자는 <a href="https://adssettings.google.com/authenticated" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Google 광고 설정</a>에서 맞춤 광고 게재를 중단할 수 있습니다.</li>
+                    <li>이용자는 <a href="https://adssettings.google.com/authenticated" target="_blank" rel="noopener noreferrer" class="text-pink-600 hover:underline">Google 광고 설정</a>에서 맞춤 광고 게재를 중단할 수 있습니다.</li>
                 </ul>
 
                 <h2 class="text-xl font-semibold pt-4 text-gray-800">4. 개인정보의 보유 및 이용기간</h2>
@@ -308,7 +316,7 @@
         const navbar = document.getElementById('navbar');
         const footer = document.getElementById('footer'); 
         const allPages = document.querySelectorAll('.page');
-        const navLinks = document.querySelectorAll('.nav-link'); // 헤더/푸터의 6개 링크 모두 선택
+        const navLinks = document.querySelectorAll('.nav-link'); // 헤더/푸터/로고의 모든 링크
         
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
@@ -351,27 +359,24 @@
         let pollingInterval = null; 
         
         // --- 상수 ---
-        // (중요) API 서버의 URL을 지정해야 합니다. Render.com 배포 URL로 변경하세요.
         const API_BASE_URL = "https://dental-ai-app-xyj4.onrender.com"; 
-        // const API_BASE_URL = "http://127.0.0.1:8000"; // 로컬 테스트용
 
-        // --- (★수정됨) 페이지 내비게이션 로직 (버그 수정) ---
+        // --- (★수정됨) 페이지 내비게이션 로직 (hidden 클래스 사용) ---
         const showPage = (pageIdToShow) => {
-            // 1. 모든 페이지 숨기기 (Tailwind 'hidden' 클래스 사용)
+            // 1. 모든 페이지 숨기기
             allPages.forEach(page => {
-                // page.classList.remove('active'); // (★삭제)
-                page.classList.add('hidden'); // (★추가)
+                // (★수정) .page.active 대신 'hidden' 클래스 사용
+                page.classList.add('hidden');
             });
             
-            // 2. 특정 페이지만 보이기 (Tailwind 'hidden' 클래스 사용)
+            // 2. 특정 페이지만 보이기
             const pageToShow = document.getElementById(pageIdToShow);
             if (pageToShow) {
-                // pageToShow.classList.add('active'); // (★삭제)
-                pageToShow.classList.remove('hidden'); // (★추가)
+                // (★수정) .page.active 대신 'hidden' 클래스 사용
+                pageToShow.classList.remove('hidden');
             } else {
                 console.error(`Page not found: ${pageIdToShow}`);
-                // document.getElementById('mainPage').classList.add('active'); // (★삭제)
-                document.getElementById('mainPage').classList.remove('hidden'); // (★추가)
+                document.getElementById('mainPage').classList.remove('hidden'); // fallback
             }
 
             // 3. 네비게이션 바/푸터 스타일 업데이트 (href 기반)
@@ -380,47 +385,38 @@
             navLinks.forEach(link => {
                 const linkHref = link.getAttribute('href'); 
                 
-                // --- (★수정됨) 데스크탑 Nav Bar 스타일 (더 눈에 띄게) ---
-                if (link.closest('#navbar') && !link.closest('#mobile-menu')) { 
-                    link.classList.remove('border-blue-500', 'text-blue-600', 'font-semibold');
+                // --- (★수정됨) 데스크탑 Nav Bar 스타일 (라이트 핑크) ---
+                if (link.closest('#navbar') && !link.closest('#mobile-menu') && link.querySelector('img') === null) { // 로고 링크 제외
+                    link.classList.remove('border-pink-400', 'text-pink-500', 'font-semibold'); // (500/600 -> 400/500)
                     link.classList.add('border-transparent', 'text-gray-500', 'hover:border-gray-300', 'hover:text-gray-700');
                     if (linkHref === activeHref) {
-                        link.classList.add('border-blue-500', 'text-blue-600', 'font-semibold');
+                        link.classList.add('border-pink-400', 'text-pink-500', 'font-semibold'); // (500/600 -> 400/500)
                         link.classList.remove('border-transparent', 'text-gray-500');
                     }
                 }
                 
-                // --- (★수정됨) 모바일 Nav Bar 스타일 (더 눈에 띄게) ---
+                // --- (★수정됨) 모바일 Nav Bar 스타일 (라이트 핑크) ---
                 if (link.closest('#mobile-menu')) {
-                    link.classList.remove('border-blue-500', 'text-blue-700', 'bg-blue-50', 'font-semibold');
+                    link.classList.remove('border-pink-400', 'text-pink-600', 'bg-pink-50', 'font-semibold'); // (500/700 -> 400/600)
                     link.classList.add('border-transparent', 'text-gray-600', 'hover:bg-gray-50', 'hover:border-gray-300', 'hover:text-gray-800');
                     if (linkHref === activeHref) {
-                        link.classList.add('border-blue-500', 'text-blue-700', 'bg-blue-50', 'font-semibold');
+                        link.classList.add('border-pink-400', 'text-pink-600', 'bg-pink-50', 'font-semibold'); // (500/700 -> 400/600)
                         link.classList.remove('border-transparent', 'text-gray-600');
                     }
                 }
 
-                // --- (★수정됨) 푸터 스타일 (더 눈에 띄게) ---
+                // --- (★수정됨) 푸터 스타일 (라이트 핑크) ---
                 if (link.closest('#footer')) {
-                    link.classList.remove('text-blue-600', 'font-semibold');
+                    link.classList.remove('text-pink-500', 'font-semibold'); // (600 -> 500)
                     link.classList.add('text-gray-500', 'hover:text-gray-900');
                     if (linkHref === activeHref) {
-                        link.classList.add('text-blue-600', 'font-semibold');
+                        link.classList.add('text-pink-500', 'font-semibold'); // (600 -> 500)
                         link.classList.remove('text-gray-500');
                     }
                 }
             });
             
             // 4. (★삭제) 기능 페이지에서 Nav/Footer를 숨기던 로직 제거
-            /*
-            if (pageIdToShow === 'featurePage') {
-                navbar.classList.add('hidden');
-                footer.classList.add('hidden'); // 푸터 숨기기
-            } else {
-                navbar.classList.remove('hidden');
-                footer.classList.remove('hidden'); // 푸터 보이기
-            }
-            */
             
             // 5. 페이지 상단으로 스크롤
             window.scrollTo(0, 0);
@@ -544,9 +540,17 @@
                 console.error("마이크 권한 오류:", err);
                 
                 // (★수정) mainSubCopy(메인 페이지)에 오류 메시지 표시
-                mainSubCopy.textContent = "오류: 마이크 권한을 허용해야 녹음을 시작할 수 있습니다.";
-                
-                // (★삭제) 'featurePage'의 버튼을 수정하려던 로직 삭제 (페이지 이동 전이므로)
+                // (★수정) 권한 거부('denied') 상태를 감지하고 구체적인 안내 제공
+                if (err.name === 'NotAllowedError' || err.name === 'SecurityError') {
+                    mainSubCopy.innerHTML = `
+                        <span class="font-bold text-red-600">마이크 권한이 차단되었습니다.</span><br>
+                        <span class="text-sm">브라우저 주소창의 <strong class="mx-1">[자물쇠 🔒 아이콘]</strong>을 클릭하여<br>마이크 권한을 '허용'으로 변경한 후 새로고침 해주세요.</span>
+                    `;
+                } else if (err.name === 'NotFoundError') {
+                     mainSubCopy.textContent = "오류: 연결된 마이크 장치를 찾을 수 없습니다.";
+                } else {
+                     mainSubCopy.textContent = `오류: 마이크를 시작할 수 없습니다. (${err.name})`;
+                }
             }
         };
 
@@ -663,7 +667,8 @@
             recordIcon.classList.add('hidden');
             stopIcon.classList.remove('hidden');
             recordButton.classList.remove('bg-red-600', 'hover:bg-red-700');
-            recordButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            // (★수정됨) Stop 버튼 색상을 '라이트 핑크' 계열로 변경 (600->500)
+            recordButton.classList.add('bg-pink-500', 'hover:bg-pink-600');
             recordStatus.textContent = "녹음 중...";
             
             startTimer();
@@ -679,7 +684,8 @@
             // UI 업데이트: 녹음 버튼 활성화 (빨간색)
             stopIcon.classList.add('hidden');
             recordIcon.classList.remove('hidden');
-            recordButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            // (★수정됨) Stop 버튼 색상(라이트 핑크) 제거
+            recordButton.classList.remove('bg-pink-500', 'hover:bg-pink-600');
             recordButton.classList.add('bg-red-600', 'hover:bg-red-700');
             recordStatus.textContent = "녹음 중지. 처리 시작..."; 
             
@@ -690,7 +696,8 @@
         const resetRecordingUI = () => {
             stopIcon.classList.add('hidden');
             recordIcon.classList.remove('hidden');
-            recordButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            // (★수정됨) Stop 버튼 색상(라이트 핑크) 제거
+            recordButton.classList.remove('bg-pink-500', 'hover:bg-pink-600');
             recordButton.classList.add('bg-red-600', 'hover:bg-red-700');
             recordButton.disabled = false;
             recordButton.classList.remove('btn-disabled');
@@ -714,7 +721,7 @@
             const audioUrl = URL.createObjectURL(audioBlob);
             audioPlaybackContainer.innerHTML = `
                 <audio controls src="${audioUrl}" class="mt-4 rounded-lg"></audio>
-                <a href="${audioUrl}" download="recording.webm" class="text-blue-600 hover:underline text-sm mt-2">
+                <a href="${audioUrl}" download="recording.webm" class="text-pink-600 hover:underline text-sm mt-2">
                     녹음 파일 다운로드
                 </a>
             `;
