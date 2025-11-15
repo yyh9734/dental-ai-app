@@ -379,7 +379,7 @@
         // --- 상수 ---
         const API_BASE_URL = "https://dental-ai-app-xyj4.onrender.com";
 
-        // --- (신규) 페이지 내비게이션 로직 ---
+        // --- (신규) 페이지 내비게이션 로직 (수정됨) ---
         const showPage = (pageIdToShow) => {
             // 1. 모든 페이지 숨기기
             allPages.forEach(page => {
@@ -392,11 +392,21 @@
                 pageToShow.classList.add('active');
             }
 
-            // 3. 네비게이션 바 스타일 업데이트
+            // 3. 네비게이션 바 스타일 업데이트 (★수정된 로직★)
             navLinks.forEach(link => {
                 link.classList.remove('border-blue-500', 'text-gray-900');
                 link.classList.add('border-transparent', 'text-gray-500', 'hover:border-gray-300', 'hover:text-gray-700');
-                if (link.id === `nav${pageIdToShow.replace('Page', '')}`) {
+                
+                // 'mainPage' -> 'Home', 'aboutPage' -> 'About' 등으로 변환
+                let navIdSuffix = pageIdToShow.replace('Page', '');
+                if (navIdSuffix === 'main') {
+                    navIdSuffix = 'Home';
+                } else {
+                    navIdSuffix = navIdSuffix.charAt(0).toUpperCase() + navIdSuffix.slice(1);
+                }
+
+                // 올바른 ID (예: 'navHome')와 비교
+                if (link.id === `nav${navIdSuffix}`) {
                     link.classList.add('border-blue-500', 'text-gray-900');
                     link.classList.remove('border-transparent', 'text-gray-500');
                 }
@@ -707,9 +717,11 @@
             document.body.removeChild(tempTextArea);
         };
 
-        // --- 이벤트 리스너 연결 ---
+        // --- 이벤트 리스너 연결 (★수정됨★) ---
         startButton.addEventListener('click', initiateRecordingSession);
-        backButton.addEventListener('click', forceShowMainPage);
+        
+        // 'forceShowMainPage' -> 'showMainPage'로 변경 (경고 모달 호출)
+        backButton.addEventListener('click', showMainPage); 
 
         recordButton.addEventListener('click', () => {
             if (isRecording) {
@@ -727,10 +739,10 @@
             });
         });
 
-        // (신규) 네비게이션 링크 이벤트 리스너
+        // (신규) 네비게이션 링크 이벤트 리스너 (★수정됨★)
         document.getElementById('navHome').addEventListener('click', (e) => {
             e.preventDefault();
-            showPage('mainPage');
+            showMainPage(); // 'showPage' -> 'showMainPage'로 변경 (경고 모달 호출)
         });
         document.getElementById('navAbout').addEventListener('click', (e) => {
             e.preventDefault();
@@ -740,12 +752,19 @@
             e.preventDefault();
             showPage('privacyPage');
         });
-        // (신규) 푸터 링크 이벤트 리스너
+        
+        // (신규) 푸터 링크 이벤트 리스너 (★수정됨★)
         document.querySelectorAll('footer .nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const pageId = e.target.getAttribute('href').substring(1) + 'Page'; // #home -> homePage
-                showPage(pageId);
+                const href = e.target.getAttribute('href');
+                
+                if (href === '#home') {
+                    showMainPage(); // 홈 버튼은 경고 모달 호출
+                } else {
+                    const pageId = href.substring(1) + 'Page'; // #about -> aboutPage
+                    showPage(pageId);
+                }
             });
         });
 
