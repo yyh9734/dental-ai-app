@@ -1,45 +1,82 @@
 <!-- === index.html (Nav Bar 기능 수정 / CDN 롤백) === -->
 <!DOCTYPE html>
 <html lang="ko" class="h-full">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InternSam - AI 진료 기록 어시스턴트</title>
-    
+
     <!-- (★롤백됨) Tailwind CDN 스크립트 사용 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- [TODO] Google AdSense에서 발급받은 data-ad-client 코드를 여기에 붙여넣으세요. -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7443608484367770"
         crossorigin="anonymous"></script>
-
+    <meta name="google-adsense-account" content="ca-pub-7443608484367770">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
     <!-- (★롤백됨) @apply 규칙들을 <style> 태그로 복원 -->
     <style>
-        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+        }
+
         /* (★수정됨) Primary 버튼 색상을 '라이트 핑크' 계열로 변경 (500->400) */
-        .btn-primary { @apply text-white bg-pink-400 hover:bg-pink-500 focus:ring-4 focus:ring-pink-200 font-medium rounded-lg text-sm px-5 py-2.5 transition-all duration-300 ease-in-out shadow-md; }
-        .btn-secondary { @apply text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 transition-all duration-300 ease-in-out shadow-sm; }
-        .btn-danger { @apply text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 transition-all duration-300 ease-in-out shadow-md; }
+        .btn-primary {
+            @apply text-white bg-pink-400 hover:bg-pink-500 focus:ring-4 focus:ring-pink-200 font-medium rounded-lg text-sm px-5 py-2.5 transition-all duration-300 ease-in-out shadow-md;
+        }
+
+        .btn-secondary {
+            @apply text-gray-700 bg-white hover:bg-gray-100 border border-gray-300 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 transition-all duration-300 ease-in-out shadow-sm;
+        }
+
+        .btn-danger {
+            @apply text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 transition-all duration-300 ease-in-out shadow-md;
+        }
+
         /* (★수정됨) Copy 버튼 색상을 '라이트 핑크' 계열로 변경 (600->500, 100->50) */
-        .btn-copy { @apply ml-2 text-xs text-pink-500 hover:text-pink-700 font-medium px-2 py-1 bg-pink-50 hover:bg-pink-100 rounded-md transition-all; }
-        .btn-disabled { @apply bg-gray-400 text-gray-200 cursor-not-allowed; }
-        .transcript-bubble { @apply p-3 rounded-lg max-w-xs md:max-w-md; }
-        .transcript-patient { @apply bg-gray-100 text-gray-800 self-start; }
+        .btn-copy {
+            @apply ml-2 text-xs text-pink-500 hover:text-pink-700 font-medium px-2 py-1 bg-pink-50 hover:bg-pink-100 rounded-md transition-all;
+        }
+
+        .btn-disabled {
+            @apply bg-gray-400 text-gray-200 cursor-not-allowed;
+        }
+
+        .transcript-bubble {
+            @apply p-3 rounded-lg max-w-xs md:max-w-md;
+        }
+
+        .transcript-patient {
+            @apply bg-gray-100 text-gray-800 self-start;
+        }
+
         /* (★수정됨) Doctor(술자) 대화창 색상을 '라이트 핑크' 계열로 변경 (500->400) */
-        .transcript-doctor { @apply bg-pink-400 text-white self-end; }
-        .modal-overlay { @apply fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300; }
-        .modal-content { @apply bg-white p-6 rounded-lg shadow-xl w-full max-w-md mx-4 transition-transform transform duration-300; }
-        
+        .transcript-doctor {
+            @apply bg-pink-400 text-white self-end;
+        }
+
+        .modal-overlay {
+            @apply fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300;
+        }
+
+        .modal-content {
+            @apply bg-white p-6 rounded-lg shadow-xl w-full max-w-md mx-4 transition-transform transform duration-300;
+        }
+
         /* (★수정됨) CDN의 @apply 버그를 피하기 위해 순수 CSS로 변경 */
         /* (★삭제) .page 및 .page.active 규칙이 @apply와 충돌하므로 삭제합니다. */
         /* .page { display: none; } */
         /* .page.active { display: block; } */
     </style>
 </head>
+
 <body class="h-full bg-gray-50 text-gray-900 antialiased flex flex-col">
 
     <!-- 1. Navigation Bar -->
@@ -54,28 +91,35 @@
                         <span class="font-bold text-xl ml-2 text-gray-800">InternSam</span>
                     </a>
                 </div>
-                
+
                 <!-- 데스크탑 메뉴 -->
                 <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                    <a href="#home" class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                    <a href="#home"
+                        class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
                         홈
                     </a>
-                    <a href="#about" class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                    <a href="#about"
+                        class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
                         서비스 소개
                     </a>
-                    <a href="#privacy" class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                    <a href="#privacy"
+                        class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
                         개인정보 처리방침
                     </a>
                 </div>
 
                 <!-- 모바일 햄버거 버튼 -->
                 <div class="sm:hidden flex items-center">
-                    <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-pink-500" aria-controls="mobile-menu" aria-expanded="false">
+                    <button id="mobile-menu-button" type="button"
+                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-pink-500"
+                        aria-controls="mobile-menu" aria-expanded="false">
                         <span class="sr-only">Open main menu</span>
-                        <svg id="hamburger-icon" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                        <svg id="hamburger-icon" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
-                        <svg id="close-icon" class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                        <svg id="close-icon" class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
@@ -83,24 +127,30 @@
 
             </div>
         </div>
-        
+
         <!-- 모바일 메뉴 (숨겨짐) -->
         <div id="mobile-menu" class="hidden sm:hidden border-t border-gray-200">
             <div class="pt-2 pb-3 space-y-1">
-                <a href="#home" class="nav-link block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">홈</a>
-                <a href="#about" class="nav-link block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">서비스 소개</a>
-                <a href="#privacy" class="nav-link block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">개인정보 처리방침</a>
+                <a href="#home"
+                    class="nav-link block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">홈</a>
+                <a href="#about"
+                    class="nav-link block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">서비스
+                    소개</a>
+                <a href="#privacy"
+                    class="nav-link block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">개인정보
+                    처리방침</a>
             </div>
         </div>
     </nav>
 
     <!-- 2. App Wrapper (페이지 컨테이너) -->
     <div id="app-wrapper" class="flex-1">
-        
+
         <!-- ===== 2A. 메인 페이지 (홈) ===== -->
         <!-- (★수정) 'hidden' 클래스를 사용하지 않습니다. JS가 로드 시 처리합니다. -->
         <section id="mainPage" class="page h-full flex flex-col justify-center"> <!-- active 클래스 없음 -->
-            <div class="flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-pink-50 to-white">
+            <div
+                class="flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-pink-50 to-white">
                 <div class="mb-8">
                     <!-- (★수정) 실제 로고 이미지로 변경 -->
                     <img class="h-16 w-16 mx-auto" src="logo.svg" alt="InternSam Logo">
@@ -109,11 +159,12 @@
                         AI가 진료 대화를 분석하여 SOAP 차트를 완성합니다.
                     </p>
                 </div>
-                <button id="startButton" class="btn-primary !text-lg !px-8 !py-3 !rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                <button id="startButton"
+                    class="btn-primary !text-lg !px-8 !py-3 !rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                     새 진료 녹음 시작하기
                 </button>
             </div>
-            
+
             <!-- "How it Works" 콘텐츠 -->
             <div class="py-12 bg-white">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -121,19 +172,25 @@
                     <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div class="text-center">
                             <!-- (★수정됨) How it Works 아이콘 색상 (라이트 핑크) -->
-                            <div class="flex items-center justify-center h-12 w-12 rounded-full bg-pink-400 text-white font-bold text-xl mx-auto">1</div>
+                            <div
+                                class="flex items-center justify-center h-12 w-12 rounded-full bg-pink-400 text-white font-bold text-xl mx-auto">
+                                1</div>
                             <h3 class="mt-4 text-lg font-medium text-gray-900">대화 녹음</h3>
                             <p class="mt-2 text-base text-gray-500">진료 중 환자와의 대화를 버튼 하나로 녹음합니다.</p>
                         </div>
                         <div class="text-center">
                             <!-- (★수정됨) How it Works 아이콘 색상 (라이트 핑크) -->
-                            <div class="flex items-center justify-center h-12 w-12 rounded-full bg-pink-400 text-white font-bold text-xl mx-auto">2</div>
+                            <div
+                                class="flex items-center justify-center h-12 w-12 rounded-full bg-pink-400 text-white font-bold text-xl mx-auto">
+                                2</div>
                             <h3 class="mt-4 text-lg font-medium text-gray-900">AI 분석 (SOAP)</h3>
                             <p class="mt-2 text-base text-gray-500">AI가 화자를 분리하고 대화 내용을 SOAP 폼으로 자동 분류합니다.</p>
                         </div>
                         <div class="text-center">
                             <!-- (★수정됨) How it Works 아이콘 색상 (라이트 핑크) -->
-                            <div class="flex items-center justify-center h-12 w-12 rounded-full bg-pink-400 text-white font-bold text-xl mx-auto">3</div>
+                            <div
+                                class="flex items-center justify-center h-12 w-12 rounded-full bg-pink-400 text-white font-bold text-xl mx-auto">
+                                3</div>
                             <h3 class="mt-4 text-lg font-medium text-gray-900">차트 복사</h3>
                             <p class="mt-2 text-base text-gray-500">완성된 요약본을 EMR/차트에 바로 복사-붙여넣기 합니다.</p>
                         </div>
@@ -144,22 +201,19 @@
             <!-- (수정됨) 광고 배너 영역 -->
             <div class="p-6 my-8 text-center">
                 <h3 class="font-semibold text-gray-700 mb-4">파트너 광고</h3>
-                
+
                 <div class="w-full max-w-4xl mx-auto flex items-center justify-center overflow-hidden">
                     <!-- 
                       [중요] 아래 data-ad-client와 data-ad-slot 값을 
                       구글 애드센스에서 복사한 값으로 정확히 바꿔주세요.
                     -->
-                    <ins class="adsbygoogle"
-                         style="display:block; width: 100%;"
-                         data-ad-client="ca-pub-7443608484367770"
-                         data-ad-slot="[여기에_광고단위_ID_입력]"
-                         data-ad-format="auto"
-                         data-full-width-responsive="true"></ins>
-                    
+                    <ins class="adsbygoogle" style="display:block; width: 100%;"
+                        data-ad-client="ca-pub-7443608484367770" data-ad-slot="[여기에_광고단위_ID_입력]" data-ad-format="auto"
+                        data-full-width-responsive="true"></ins>
+
                     <!-- (필수) 광고 실행 스크립트 -->
                     <script>
-                         (adsbygoogle = window.adsbygoogle || []).push({});
+                        (adsbygoogle = window.adsbygoogle || []).push({});
                     </script>
                 </div>
             </div>
@@ -173,17 +227,22 @@
                 <h2 class="text-2xl font-bold text-gray-800">새 진료 녹음</h2>
                 <button id="backButton" class="btn-secondary">홈으로</button>
             </header>
-            
+
             <!-- (기존 녹음기 UI - 생략) ... -->
-            <div class="flex flex-col items-center justify-center py-6 md:py-10 bg-white rounded-lg shadow-inner my-4 border border-gray-200">
-                <button id="recordButton" class="w-20 h-20 rounded-full bg-red-600 hover:bg-red-700 shadow-lg flex items-center justify-center text-white transition-all duration-300">
+            <div
+                class="flex flex-col items-center justify-center py-6 md:py-10 bg-white rounded-lg shadow-inner my-4 border border-gray-200">
+                <button id="recordButton"
+                    class="w-20 h-20 rounded-full bg-red-600 hover:bg-red-700 shadow-lg flex items-center justify-center text-white transition-all duration-300">
                     <!-- Record Icon -->
-                    <svg id="recordIcon" class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10z"/>
+                    <svg id="recordIcon" class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                        viewBox="0 0 16 16">
+                        <path d="M8 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10z" />
                     </svg>
                     <!-- Stop Icon -->
-                    <svg id="stopIcon" class="w-6 h-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M5 3.5h6A1.5 1.5 0 0 1 12.5 5v6a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 11V5A1.5 1.5 0 0 1 5 3.5z"/>
+                    <svg id="stopIcon" class="w-6 h-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                        viewBox="0 0 16 16">
+                        <path
+                            d="M5 3.5h6A1.5 1.5 0 0 1 12.5 5v6a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 11V5A1.5 1.5 0 0 1 5 3.5z" />
                     </svg>
                 </button>
                 <div id="timer" class="text-2xl font-semibold text-gray-700 mt-4">00:00:00</div>
@@ -205,28 +264,36 @@
                                 <label for="soap-s" class="block text-sm font-bold text-gray-700">S (Subjective)</label>
                                 <button class="btn-copy" data-target="soap-s">복사</button>
                             </div>
-                            <textarea id="soap-s" rows="4" class="w-full p-2 border border-gray-300 rounded-md shadow-inner bg-gray-50" readonly placeholder="환자의 주관적인 호소 내용..."></textarea>
+                            <textarea id="soap-s" rows="4"
+                                class="w-full p-2 border border-gray-300 rounded-md shadow-inner bg-gray-50" readonly
+                                placeholder="환자의 주관적인 호소 내용..."></textarea>
                         </div>
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <label for="soap-o" class="block text-sm font-bold text-gray-700">O (Objective)</label>
                                 <button class="btn-copy" data-target="soap-o">복사</button>
                             </div>
-                            <textarea id="soap-o" rows="4" class="w-full p-2 border border-gray-300 rounded-md shadow-inner bg-gray-50" readonly placeholder="의료진의 객관적인 검사 결과..."></textarea>
+                            <textarea id="soap-o" rows="4"
+                                class="w-full p-2 border border-gray-300 rounded-md shadow-inner bg-gray-50" readonly
+                                placeholder="의료진의 객관적인 검사 결과..."></textarea>
                         </div>
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <label for="soap-a" class="block text-sm font-bold text-gray-700">A (Assessment)</label>
                                 <button class="btn-copy" data-target="soap-a">복사</button>
                             </div>
-                            <textarea id="soap-a" rows="4" class="w-full p-2 border border-gray-300 rounded-md shadow-inner bg-gray-50" readonly placeholder="검사 결과를 토대로 한 평가 및 진단..."></textarea>
+                            <textarea id="soap-a" rows="4"
+                                class="w-full p-2 border border-gray-300 rounded-md shadow-inner bg-gray-50" readonly
+                                placeholder="검사 결과를 토대로 한 평가 및 진단..."></textarea>
                         </div>
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <label for="soap-p" class="block text-sm font-bold text-gray-700">P (Plan)</label>
                                 <button class="btn-copy" data-target="soap-p">복사</button>
                             </div>
-                            <textarea id="soap-p" rows="4" class="w-full p-2 border border-gray-300 rounded-md shadow-inner bg-gray-50" readonly placeholder="향후 치료 계획..."></textarea>
+                            <textarea id="soap-p" rows="4"
+                                class="w-full p-2 border border-gray-300 rounded-md shadow-inner bg-gray-50" readonly
+                                placeholder="향후 치료 계획..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -240,10 +307,12 @@
             <div class="mt-6 space-y-4 text-gray-700">
                 <p>InternSam은 바쁜 치과 진료 환경 속에서 의료진의 행정 업무 부담을 획기적으로 줄이기 위해 탄생한 AI 기반 진료 기록 어시스턴트입니다.</p>
                 <h2 class="text-2xl font-semibold pt-4">핵심 문제</h2>
-                <p>환자와의 진료 상담 내용은 EMR(전자 의무 기록)에 SOAP 형식으로 정확하게 기록되어야 합니다. 하지만 진료가 몰리는 시간에는 이 차팅 작업이 큰 부담이 되며, 기록이 누락되거나 지연되기 쉽습니다.</p>
+                <p>환자와의 진료 상담 내용은 EMR(전자 의무 기록)에 SOAP 형식으로 정확하게 기록되어야 합니다. 하지만 진료가 몰리는 시간에는 이 차팅 작업이 큰 부담이 되며, 기록이 누락되거나
+                    지연되기 쉽습니다.</p>
                 <h2 class="text-2xl font-semibold pt-4">InternSam의 해결책</h2>
                 <ul class="list-disc list-inside space-y-2">
-                    <li><strong>AI 기반 SOAP 노트 생성:</strong> 진료 중 대화를 녹음하면, AI가 자동으로 환자와 술자의 발언을 분리하고, 의학적 맥락을 분석하여 SOAP (Subjective, Objective, Assessment, Plan) 형식의 차트를 생성합니다.</li>
+                    <li><strong>AI 기반 SOAP 노트 생성:</strong> 진료 중 대화를 녹음하면, AI가 자동으로 환자와 술자의 발언을 분리하고, 의학적 맥락을 분석하여 SOAP
+                        (Subjective, Objective, Assessment, Plan) 형식의 차트를 생성합니다.</li>
                     <li><strong>시간 절약:</strong> 차팅에 소요되는 시간을 90% 이상 절감하여, 의료진이 환자에게 더 집중할 수 있는 환경을 만듭니다.</li>
                     <li><strong>정확도 향상:</strong> AI가 대화의 핵심 내용을 놓치지 않고 객관적으로 기록하여, 차트의 완성도와 정확성을 높입니다.</li>
                 </ul>
@@ -256,12 +325,14 @@
         <section id="privacyPage" class="page hidden max-w-4xl mx-auto p-6 md:p-10 bg-white shadow-lg rounded-lg my-10">
             <h1 class="text-3xl font-bold text-gray-900 border-b pb-4">개인정보 처리방침</h1>
             <div class="mt-6 space-y-4 text-gray-600 text-sm">
-                <p>InternSam(이하 '서비스')은(는) 이용자의 개인정보를 중요시하며, "정보통신망 이용촉진 및 정보보호"에 관한 법률을 준수하고 있습니다. 본 서비스는 개인정보 처리방침을 통하여 이용자가 제공하는 개인정보가 어떠한 용도와 방식으로 이용되고 있으며, 개인정보보호를 위해 어떠한 조치가 취해지고 있는지 알려드립니다.</p>
-                
+                <p>InternSam(이하 '서비스')은(는) 이용자의 개인정보를 중요시하며, "정보통신망 이용촉진 및 정보보호"에 관한 법률을 준수하고 있습니다. 본 서비스는 개인정보 처리방침을
+                    통하여 이용자가 제공하는 개인정보가 어떠한 용도와 방식으로 이용되고 있으며, 개인정보보호를 위해 어떠한 조치가 취해지고 있는지 알려드립니다.</p>
+
                 <h2 class="text-xl font-semibold pt-4 text-gray-800">1. 수집하는 개인정보의 항목</h2>
                 <p>본 서비스는 원활한 서비스 제공을 위해 다음의 정보를 수집할 수 있습니다.</p>
                 <ul class="list-disc list-inside ml-4">
-                    <li>(필수) 진료 대화 음성 파일: 서비스의 핵심 기능인 SOAP 노트 생성을 위해 수집되며, AI 분석 후 즉시 파기되거나 사용자의 별도 동의 하에 암호화되어 보관됩니다. (현재 버전에서는 서버에 저장되지 않고 즉시 처리됩니다.)</li>
+                    <li>(필수) 진료 대화 음성 파일: 서비스의 핵심 기능인 SOAP 노트 생성을 위해 수집되며, AI 분석 후 즉시 파기되거나 사용자의 별도 동의 하에 암호화되어 보관됩니다.
+                        (현재 버전에서는 서버에 저장되지 않고 즉시 처리됩니다.)</li>
                     <li>(선택) 접속 로그, 쿠키, IP 주소: 서비스 이용 통계 및 광고 최적화를 위해 수집될 수 있습니다.</li>
                 </ul>
 
@@ -276,25 +347,32 @@
 
                 <h2 class="text-xl font-semibold pt-4 text-gray-800">3. 광고 및 쿠키 사용</h2>
                 <!-- (★삭제) "(★AdSense 필수★)" 텍스트 삭제 -->
-                <p>본 서비스는 Google AdSense를 포함한 제3자 광고 사업자가 제공하는 광고를 게재할 수 있습니다. 이 과정에서 이용자의 브라우저에 쿠키(cookie)가 저장될 수 있습니다.</p>
+                <p>본 서비스는 Google AdSense를 포함한 제3자 광고 사업자가 제공하는 광고를 게재할 수 있습니다. 이 과정에서 이용자의 브라우저에 쿠키(cookie)가 저장될 수 있습니다.
+                </p>
                 <ul class="list-disc list-inside ml-4">
                     <li>Google을 포함한 제3자 광고 사업자는 쿠키를 사용하여 본 웹사이트 또는 다른 웹사이트에 대한 이용자의 이전 방문 기록을 기반으로 광고를 게재합니다.</li>
-                    <li>Google이 광고 쿠키를 사용하면 Google 및 Google의 파트너는 본 사이트 및/또는 다른 사이트의 방문 기록을 토대로 이용자에게 맞춤 광고를 표시할 수 있습니다.</li>
-                    <li>이용자는 <a href="https://adssettings.google.com/authenticated" target="_blank" rel="noopener noreferrer" class="text-pink-600 hover:underline">Google 광고 설정</a>에서 맞춤 광고 게재를 중단할 수 있습니다.</li>
+                    <li>Google이 광고 쿠키를 사용하면 Google 및 Google의 파트너는 본 사이트 및/또는 다른 사이트의 방문 기록을 토대로 이용자에게 맞춤 광고를 표시할 수 있습니다.
+                    </li>
+                    <li>이용자는 <a href="https://adssettings.google.com/authenticated" target="_blank"
+                            rel="noopener noreferrer" class="text-pink-600 hover:underline">Google 광고 설정</a>에서 맞춤 광고 게재를
+                        중단할 수 있습니다.</li>
                 </ul>
 
                 <h2 class="text-xl font-semibold pt-4 text-gray-800">4. 개인정보의 보유 및 이용기간</h2>
-                <p>음성 파일은 원칙적으로 AI 분석 완료 후 즉시 파기합니다. 단, 관련 법령의 규정에 의하여 보존할 필요가 있는 경우 회사는 아래와 같이 관계 법령에서 정한 일정한 기간 동안 회원 정보를 보관합니다.</p>
-                
+                <p>음성 파일은 원칙적으로 AI 분석 완료 후 즉시 파기합니다. 단, 관련 법령의 규정에 의하여 보존할 필요가 있는 경우 회사는 아래와 같이 관계 법령에서 정한 일정한 기간 동안 회원
+                    정보를 보관합니다.</p>
+
                 <h2 class="text-xl font-semibold pt-4 text-gray-800">5. 개인정보의 파기절차 및 방법</h2>
                 <!-- (★수정됨) 법적 용어에 맞게 파기 절차 구체화 -->
                 <p>서비스는 원칙적으로 개인정보 처리 목적이 달성된 후에는 해당 정보를 지체 없이 파기합니다. 파기절차 및 방법은 다음과 같습니다.</p>
                 <ul class="list-disc list-inside ml-4">
                     <li><strong>파기절차:</strong> 이용자의 음성 파일은 AI 분석(SOAP 요약) 목적이 달성된 후, S3 버킷에서 즉시 파기 대상으로 선정됩니다.</li>
-                    <li><strong>파기방법 (전자적 파일):</strong> S3 버킷에 저장된 오디오 파일(uploads/) 및 STT 결과 JSON(results/)은 처리 목적 달성 후 지체 없이 복구 및 재생이 불가능한 기술적 방법을 사용하여 영구 삭제합니다.</li>
-                    <li><strong>파기방법 (기타):</strong> API 서버의 메모리(jobs_db)에 임시 저장되는 작업 상태 정보는 서버 재시작 시 또는 최대 24시간 보관 후 메모리에서 자동 소멸됩니다.</li>
+                    <li><strong>파기방법 (전자적 파일):</strong> S3 버킷에 저장된 오디오 파일(uploads/) 및 STT 결과 JSON(results/)은 처리 목적 달성 후
+                        지체 없이 복구 및 재생이 불가능한 기술적 방법을 사용하여 영구 삭제합니다.</li>
+                    <li><strong>파기방법 (기타):</strong> API 서버의 메모리(jobs_db)에 임시 저장되는 작업 상태 정보는 서버 재시작 시 또는 최대 24시간 보관 후
+                        메모리에서 자동 소멸됩니다.</li>
                 </ul>
-                
+
                 <p class="pt-4 font-semibold text-gray-800">본 방침은 2025년 11월 15일부터 시행됩니다.</p>
             </div>
         </section>
@@ -328,10 +406,10 @@
         console.log("AI Dental App 스크립트 로드 시작 (AdSense 보강).");
         // --- DOM 요소 선택 ---
         const navbar = document.getElementById('navbar');
-        const footer = document.getElementById('footer'); 
+        const footer = document.getElementById('footer');
         const allPages = document.querySelectorAll('.page');
         const navLinks = document.querySelectorAll('.nav-link'); // 헤더/푸터/로고의 모든 링크
-        
+
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
         const hamburgerIcon = document.getElementById('hamburger-icon');
@@ -349,12 +427,12 @@
         const recordIcon = document.getElementById('recordIcon');
         const stopIcon = document.getElementById('stopIcon');
         const timerEl = document.getElementById('timer');
-        const recordStatus = document.getElementById('recordStatus'); 
+        const recordStatus = document.getElementById('recordStatus');
         const audioPlaybackContainer = document.getElementById('audioPlaybackContainer');
         const transcriptContainer = document.getElementById('transcriptContainer');
         const copyButtons = document.querySelectorAll('.btn-copy');
         const mainSubCopy = document.getElementById('mainSubCopy');
-        
+
         const warningModal = document.getElementById('warningModal');
         const modalMessage = document.getElementById('modalMessage');
         const modalCancelButton = document.getElementById('modalCancelButton');
@@ -363,17 +441,17 @@
         // --- 녹음 관련 변수 ---
         let mediaRecorder;
         let audioChunks = [];
-        let audioStream; 
+        let audioStream;
         let timerInterval;
         let seconds = 0;
-        
+
         // --- 상태 변수 ---
         let isRecording = false;
         let isProcessing = false;
-        let pollingInterval = null; 
-        
+        let pollingInterval = null;
+
         // --- 상수 ---
-        const API_BASE_URL = "https://dental-ai-app-xyj4.onrender.com"; 
+        const API_BASE_URL = "https://dental-ai-app-xyj4.onrender.com";
 
         // --- (★수정됨) 페이지 내비게이션 로직 (hidden 클래스 사용) ---
         const showPage = (pageIdToShow) => {
@@ -382,7 +460,7 @@
                 // (★수정) .page.active 대신 'hidden' 클래스 사용
                 page.classList.add('hidden');
             });
-            
+
             // 2. 특정 페이지만 보이기
             const pageToShow = document.getElementById(pageIdToShow);
             if (pageToShow) {
@@ -397,8 +475,8 @@
             const activeHref = (pageIdToShow === 'mainPage') ? '#home' : `#${pageIdToShow.replace('Page', '')}`;
 
             navLinks.forEach(link => {
-                const linkHref = link.getAttribute('href'); 
-                
+                const linkHref = link.getAttribute('href');
+
                 // --- (★수정됨) 데스크탑 Nav Bar 스타일 (라이트 핑크) ---
                 if (link.closest('#navbar') && !link.closest('#mobile-menu') && link.querySelector('img') === null) { // 로고 링크 제외
                     link.classList.remove('border-pink-400', 'text-pink-500', 'font-semibold'); // (500/600 -> 400/500)
@@ -408,7 +486,7 @@
                         link.classList.remove('border-transparent', 'text-gray-500');
                     }
                 }
-                
+
                 // --- (★수정됨) 모바일 Nav Bar 스타일 (라이트 핑크) ---
                 if (link.closest('#mobile-menu')) {
                     link.classList.remove('border-pink-400', 'text-pink-600', 'bg-pink-50', 'font-semibold'); // (500/700 -> 400/600)
@@ -429,9 +507,9 @@
                     }
                 }
             });
-            
+
             // 4. (★삭제) 기능 페이지에서 Nav/Footer를 숨기던 로직 제거
-            
+
             // 5. 페이지 상단으로 스크롤
             window.scrollTo(0, 0);
         };
@@ -450,17 +528,17 @@
                 audioStream = null;
             }
             clearInterval(timerInterval);
-            clearInterval(pollingInterval); 
+            clearInterval(pollingInterval);
             isRecording = false;
             isProcessing = false;
-            
+
             resetRecordingUI();
             resetResultUI();
 
-            showPage('mainPage'); 
+            showPage('mainPage');
             warningModal.classList.add('hidden');
         };
-        
+
         const showMainPage = () => {
             if (isRecording || isProcessing) {
                 modalMessage.textContent = isRecording
@@ -471,7 +549,7 @@
                 forceShowMainPage();
             }
         };
-        
+
         modalCancelButton.addEventListener('click', () => {
             warningModal.classList.add('hidden');
         });
@@ -480,17 +558,17 @@
         // --- 녹음 세션 초기화 (메인 -> 기능) ---
         // (★수정됨) 페이지 이동 전, 메인 페이지에서 권한을 먼저 받도록 로직 변경
         const initiateRecordingSession = async () => {
-            
+
             try {
                 // 1. (★수정) 메인 페이지에서 마이크 권한 요청
                 audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                
+
                 // 2. (★수정) 권한 성공 시 mainSubCopy 업데이트
                 mainSubCopy.textContent = "마이크 권한이 확인되었습니다. 잠시 기다려주세요...";
 
                 // 3. MediaRecorder 설정
                 mediaRecorder = new MediaRecorder(audioStream);
-                
+
                 mediaRecorder.ondataavailable = (event) => {
                     audioChunks.push(event.data);
                 };
@@ -499,9 +577,9 @@
                 mediaRecorder.onstop = async () => {
                     const mimeType = mediaRecorder.mimeType || 'audio/webm';
                     const audioBlob = new Blob(audioChunks, { type: mimeType });
-                    
+
                     // 녹음파일 재생기 UI 설정
-                    setupAudioPlayback(audioBlob); 
+                    setupAudioPlayback(audioBlob);
 
                     let jobId = "";
 
@@ -509,11 +587,11 @@
                         isProcessing = true;
                         recordButton.disabled = true;
                         recordButton.classList.add('btn-disabled');
-                        
+
                         // (A) 프록시 업로드 시작
                         recordStatus.textContent = "파일 업로드 중 (서버 경유)...";
                         const formData = new FormData();
-                        formData.append("audio_file", audioBlob, `recording.webm`); 
+                        formData.append("audio_file", audioBlob, `recording.webm`);
 
                         const response = await fetch(`${API_BASE_URL}/api/upload-audio`, {
                             method: 'POST',
@@ -526,7 +604,7 @@
                             console.error("업로드 실패 상세:", errorText);
                             throw new Error(`파일 업로드 실패 (${response.status})`);
                         }
-                        
+
                         // (B) Job ID 받고 폴링 시작
                         const jobData = await response.json();
                         jobId = jobData.job_id;
@@ -542,17 +620,17 @@
                         recordButton.classList.remove('btn-disabled');
                     }
                 };
-                
+
                 // 5. (★이동) 모든 권한/설정 완료 후 페이지 이동
                 showFeaturePage();
-                
+
                 // (★추가) 기능 페이지의 상태 텍스트 초기화
                 recordStatus.textContent = "클릭하여 녹음 시작";
 
 
             } catch (err) {
                 console.error("마이크 권한 오류:", err);
-                
+
                 // (★수정) mainSubCopy(메인 페이지)에 오류 메시지 표시
                 // (★수정) 권한 거부('denied') 상태를 감지하고 구체적인 안내 제공
                 if (err.name === 'NotAllowedError' || err.name === 'SecurityError') {
@@ -561,9 +639,9 @@
                         <span class="text-sm">브라우저 주소창의 <strong class="mx-1">[자물쇠 🔒 아이콘]</strong>을 클릭하여<br>마이크 권한을 '허용'으로 변경한 후 새로고침 해주세요.</span>
                     `;
                 } else if (err.name === 'NotFoundError') {
-                     mainSubCopy.textContent = "오류: 연결된 마이크 장치를 찾을 수 없습니다.";
+                    mainSubCopy.textContent = "오류: 연결된 마이크 장치를 찾을 수 없습니다.";
                 } else {
-                     mainSubCopy.textContent = `오류: 마이크를 시작할 수 없습니다. (${err.name})`;
+                    mainSubCopy.textContent = `오류: 마이크를 시작할 수 없습니다. (${err.name})`;
                 }
             }
         };
@@ -580,11 +658,11 @@
                     if (!response.ok) {
                         throw new Error("작업 상태 조회 실패");
                     }
-                    
+
                     const data = await response.json();
-                    
+
                     // (중요) main.py/tasks.py와 상태 문자열 일치
-                    switch(data.status) {
+                    switch (data.status) {
                         case 'pending':
                             recordStatus.textContent = "AI 처리 대기 중...";
                             break;
@@ -595,10 +673,10 @@
                             recordStatus.textContent = "SOAP 요약 생성 중...";
                             break;
                         // (참고) AWS Transcribe의 세부 상태
-                        case 'processing_stt (IN_PROGRESS)': 
+                        case 'processing_stt (IN_PROGRESS)':
                             recordStatus.textContent = "음성 분석 중 (STT)...";
                             break;
-                        case 'processing_stt (COMPLETED)': 
+                        case 'processing_stt (COMPLETED)':
                             recordStatus.textContent = "음성 분석 완료. 요약 시작...";
                             break;
                         case 'completed':
@@ -608,15 +686,15 @@
                             isProcessing = false;
                             recordButton.disabled = false;
                             recordButton.classList.remove('btn-disabled');
-                            
+
                             const finalResult = data.result || {};
-                            
+
                             // UI에 결과 채우기
                             document.getElementById('soap-s').value = finalResult.s || "데이터 없음";
                             document.getElementById('soap-o').value = finalResult.o || "데이터 없음";
                             document.getElementById('soap-a').value = finalResult.a || "데이터 없음";
                             document.getElementById('soap-p').value = finalResult.p || "데이터 없음";
-                            
+
                             if (finalResult.transcript) {
                                 transcriptContainer.innerHTML = formatTranscript(finalResult.transcript);
                             } else {
@@ -646,22 +724,22 @@
 
         // 대본 포맷팅 함수 (GPT-4o가 생성한 [술자]/[환자] 태그 파싱)
         function formatTranscript(transcriptText) {
-            transcriptContainer.innerHTML = ''; 
+            transcriptContainer.innerHTML = '';
             return transcriptText.split('\n').map(line => {
                 line = line.trim();
                 // [술자] 태그 처리 (파란색 버블)
                 if (line.startsWith('[술자]')) {
                     let content = line.replace('[술자]', '').replace(':', '').trim();
                     return `<div class="w-full flex justify-end"><div class="transcript-bubble transcript-doctor">${content}</div></div>`;
-                } 
+                }
                 // [환자] 태그 처리 (회색 버블)
                 else if (line.startsWith('[환자]')) {
                     let content = line.replace('[환자]', '').replace(':', '').trim();
                     return `<div class="w-full flex justify-start"><div class="transcript-bubble transcript-patient">${content}</div></div>`;
-                } 
+                }
                 // 그 외 (타임스탬프 등)
                 else if (line) {
-                    return `<p class="text-sm text-gray-500 text-center">${line}</p>`; 
+                    return `<p class="text-sm text-gray-500 text-center">${line}</p>`;
                 }
                 return '';
             }).join('');
@@ -674,9 +752,9 @@
                 return;
             }
             isRecording = true;
-            audioChunks = []; 
+            audioChunks = [];
             mediaRecorder.start();
-            
+
             // UI 업데이트: 중지 버튼 활성화
             recordIcon.classList.add('hidden');
             stopIcon.classList.remove('hidden');
@@ -684,7 +762,7 @@
             // (★수정됨) Stop 버튼 색상을 '라이트 핑크' 계열로 변경 (600->500)
             recordButton.classList.add('bg-pink-500', 'hover:bg-pink-600');
             recordStatus.textContent = "녹음 중...";
-            
+
             startTimer();
             audioPlaybackContainer.innerHTML = ''; // 이전 녹음 재생기 숨기기
             resetResultUI(); // 이전 결과 숨기기
@@ -694,18 +772,18 @@
             if (!mediaRecorder) return;
             mediaRecorder.stop(); // -> onstop 이벤트 트리거 (업로드 시작)
             isRecording = false;
-            
+
             // UI 업데이트: 녹음 버튼 활성화 (빨간색)
             stopIcon.classList.add('hidden');
             recordIcon.classList.remove('hidden');
             // (★수정됨) Stop 버튼 색상(라이트 핑크) 제거
             recordButton.classList.remove('bg-pink-500', 'hover:bg-pink-600');
             recordButton.classList.add('bg-red-600', 'hover:bg-red-700');
-            recordStatus.textContent = "녹음 중지. 처리 시작..."; 
-            
+            recordStatus.textContent = "녹음 중지. 처리 시작...";
+
             clearInterval(timerInterval);
         };
-        
+
         // '홈으로' 버튼 등으로 세션 강제 종료 시 UI 초기화
         const resetRecordingUI = () => {
             stopIcon.classList.add('hidden');
@@ -720,7 +798,7 @@
             seconds = 0;
             audioPlaybackContainer.innerHTML = '';
         }
-        
+
         // 새 녹음 시작 시 이전 결과 초기화
         const resetResultUI = () => {
             document.getElementById('soap-s').value = "";
@@ -769,7 +847,7 @@
             } catch (err) {
                 console.error('클립보드 복사 실패:', err);
                 button.textContent = '실패';
-                 setTimeout(() => {
+                setTimeout(() => {
                     button.textContent = '복사';
                 }, 1500);
             }
@@ -779,8 +857,8 @@
         // --- 이벤트 리스너 연결 ---
         startButton.addEventListener('click', initiateRecordingSession);
         // (수정) '홈으로' 버튼은 이제 'showMainPage'를 호출 (경고 모달 로직 포함)
-        backButton.addEventListener('click', showMainPage); 
-        
+        backButton.addEventListener('click', showMainPage);
+
         recordButton.addEventListener('click', () => {
             if (isRecording) {
                 stopRecording();
@@ -803,10 +881,10 @@
                 e.preventDefault();
                 // (★수정됨) .closest()를 사용하여 아이콘 클릭 시에도 상위 링크(<a>)의 href를 찾음
                 const targetLink = e.target.closest('.nav-link');
-                if (!targetLink) return; 
-                
+                if (!targetLink) return;
+
                 let pageId = targetLink.getAttribute('href').substring(1); // "home", "about", "privacy"
-                
+
                 // "home"을 "mainPage"로 매핑
                 if (pageId === 'home') {
                     // (★수정됨) '홈' 버튼 클릭 시 경고 모달을 띄우는 showMainPage() 호출
@@ -822,7 +900,7 @@
                 closeIcon.classList.add('hidden');
             });
         });
-        
+
         // (신규) 페이지 로드 시 URL 해시(#)를 확인하여 올바른 페이지 표시
         document.addEventListener('DOMContentLoaded', () => {
             let initialPageId = window.location.hash.substring(1); // #about -> about
@@ -840,15 +918,15 @@
             } else {
                 showPage('mainPage'); // 기본값 (HTML 로드 시 hidden이 아닌 mainPage를 숨겼다가 다시 보여줌)
             }
-            
+
             // (신규) AdSense 스크립트가 로드된 후 광고 초기화
             try {
-                 (adsbygoogle = window.adsbygoogle || []).push({});
+                (adsbygoogle = window.adsbygoogle || []).push({});
             } catch (e) {
-                 console.error("AdSense 초기화 실패", e);
+                console.error("AdSense 초기화 실패", e);
             }
         });
-        
+
         // (★신규) 모바일 햄버거 메뉴 토글
         mobileMenuButton.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
@@ -859,4 +937,5 @@
         console.log("AI Dental App 스크립트 로드 완료.");
     </script>
 </body>
+
 </html>
